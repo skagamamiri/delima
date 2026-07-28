@@ -63,11 +63,11 @@ messaging.onBackgroundMessage(
         "./assets/icon-192.png",
 
       data: {
-        url:
-          payload.fcmOptions?.link ||
-          payload.data?.url ||
-          "./admin.html"
-      }
+  url:
+    payload.data?.url ||
+    payload.fcmOptions?.link ||
+    "/delima/"
+}
 
     };
 
