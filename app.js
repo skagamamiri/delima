@@ -1627,12 +1627,12 @@ console.log(
         
 
         // Simpan sesi dalam browser
-        sessionStorage.setItem(
+        localStorage.setItem(
           "delima_chat_id",
           liveChatId
         );
-
-        sessionStorage.setItem(
+        
+        localStorage.setItem(
           "delima_chat_session",
           liveChatSessionId
         );
@@ -2072,13 +2072,13 @@ if (notificationBox) {
 
 }
 
-  sessionStorage.removeItem(
-    "delima_chat_id"
-  );
+  localStorage.removeItem(
+  "delima_chat_id"
+);
 
-  sessionStorage.removeItem(
-    "delima_chat_session"
-  );
+localStorage.removeItem(
+  "delima_chat_session"
+);
 
 
   if (chatConversation) {
@@ -2284,14 +2284,14 @@ async function openChatFromNotification() {
   // ====================================================
 
   const savedChatId =
-    sessionStorage.getItem(
-      "delima_chat_id"
-    );
+  localStorage.getItem(
+    "delima_chat_id"
+  );
 
-  const savedSessionId =
-    sessionStorage.getItem(
-      "delima_chat_session"
-    );
+const savedSessionId =
+  localStorage.getItem(
+    "delima_chat_session"
+  );
 
 
   console.log(
