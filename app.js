@@ -2175,3 +2175,220 @@ function escapeLiveChatHTML(value) {
     .replace(/'/g, "&#039;");
 
 }
+
+// ======================================================
+// OPEN LIVE CHAT FROM PUSH NOTIFICATION
+// ======================================================
+
+window.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    if (
+      params.get("openChat") !== "1"
+    ) {
+      return;
+    }
+
+
+    console.log(
+      "🔔 Membuka Live Chat daripada notification..."
+    );
+
+
+    // Tunggu semua komponen portal siap
+    setTimeout(
+      async function () {
+
+        // ==========================================
+        // 1. BUKA PANEL CHAT UTAMA
+        // ==========================================
+
+        const chatButton =
+          document.getElementById(
+            "chatButton"
+          );
+
+        const chatPanel =
+          document.getElementById(
+            "chatPanel"
+          );
+
+
+        if (chatPanel) {
+
+          chatPanel.classList.add(
+            "active"
+          );
+
+          chatPanel.setAttribute(
+            "aria-hidden",
+            "false"
+          );
+
+        } else if (chatButton) {
+
+          chatButton.click();
+
+        }
+
+
+        // ==========================================
+        // 2. BUKA LIVE CHAT
+        // ==========================================
+
+        const startButton =
+          document.getElementById(
+            "startLiveChatBtn"
+          );
+
+        if (startButton) {
+
+          startButton.click();
+
+        }
+
+
+        // ==========================================
+        // 3. RESTORE SESSION CHAT
+        // ==========================================
+
+        const savedChatId =
+          sessionStorage.getItem(
+            "delima_chat_id"
+          );
+
+        const savedSessionId =
+          sessionStorage.getItem(
+            "delima_chat_session"
+          );
+
+
+        if (
+          savedChatId &&
+          savedSessionId
+        ) {
+
+          liveChatId =
+            savedChatId;
+
+          liveChatSessionId =
+            savedSessionId;
+
+
+          window.delimaLiveChat = {
+
+            chatId:
+              liveChatId,
+
+            sessionId:
+              liveChatSessionId
+
+          };
+
+
+          console.log(
+            "✅ Chat session restored"
+          );
+
+
+          // ========================================
+          // PAPAR CONVERSATION
+          // ========================================
+
+          if (chatLogin) {
+
+            chatLogin.classList.add(
+              "hidden"
+            );
+
+          }
+
+
+          if (chatConversation) {
+
+            chatConversation.classList.remove(
+              "hidden"
+            );
+
+          }
+
+
+          // ========================================
+          // PAPAR NOTIFICATION STATUS
+          // ========================================
+
+          const notificationBox =
+            document.getElementById(
+              "parentNotificationBox"
+            );
+
+
+          if (notificationBox) {
+
+            notificationBox.classList.remove(
+              "hidden"
+            );
+
+          }
+
+
+          // ========================================
+          // LOAD MESEJ TERBARU
+          // ========================================
+
+          await loadLiveMessages();
+
+
+          // ========================================
+          // START AUTO REFRESH
+          // ========================================
+
+          startLiveChatPolling();
+
+
+          // ========================================
+          // SCROLL KE LIVE CHAT
+          // ========================================
+
+          if (liveChatArea) {
+
+            liveChatArea.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest"
+            });
+
+          }
+
+
+          if (liveMessageInput) {
+
+            liveMessageInput.focus();
+
+          }
+
+        }
+
+
+        // ==========================================
+        // 4. BUANG ?openChat=1 DARIPADA URL
+        // ==========================================
+
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+
+
+      },
+      500
+    );
+
+  }
+);
