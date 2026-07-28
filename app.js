@@ -2177,218 +2177,304 @@ function escapeLiveChatHTML(value) {
 }
 
 // ======================================================
-// OPEN LIVE CHAT FROM PUSH NOTIFICATION
+// AUTO OPEN CHAT FROM PUSH NOTIFICATION
 // ======================================================
 
-window.addEventListener(
-  "DOMContentLoaded",
-  function () {
+async function openChatFromNotification() {
 
-    const params =
-      new URLSearchParams(
-        window.location.search
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const shouldOpen =
+    params.get("openChat") === "1";
+
+
+  console.log(
+    "🔔 openChat parameter:",
+    params.get("openChat")
+  );
+
+
+  if (!shouldOpen) {
+    return;
+  }
+
+
+  console.log(
+    "🔔 Auto opening Parent Live Chat..."
+  );
+
+
+  // ====================================================
+  // 1. BUKA PANEL CHAT UTAMA
+  // ====================================================
+
+  const panel =
+    document.getElementById(
+      "chatPanel"
+    );
+
+  const badge =
+    document.querySelector(
+      ".chat-badge"
+    );
+
+
+  if (panel) {
+
+    panel.classList.add(
+      "active"
+    );
+
+    panel.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    console.log(
+      "✅ chatPanel opened"
+    );
+
+  } else {
+
+    console.error(
+      "❌ chatPanel tidak dijumpai"
+    );
+
+  }
+
+
+  if (badge) {
+    badge.style.display = "none";
+  }
+
+
+  // ====================================================
+  // 2. BUKA LIVE CHAT AREA
+  // ====================================================
+
+  if (liveChatArea) {
+
+    liveChatArea.classList.remove(
+      "hidden"
+    );
+
+    console.log(
+      "✅ liveChatArea opened"
+    );
+
+  }
+
+
+  // Kosongkan FAQ
+  const faqAnswer =
+    document.getElementById(
+      "chatAnswer"
+    );
+
+  if (faqAnswer) {
+    faqAnswer.innerHTML = "";
+  }
+
+
+  // ====================================================
+  // 3. RESTORE CHAT SESSION
+  // ====================================================
+
+  const savedChatId =
+    sessionStorage.getItem(
+      "delima_chat_id"
+    );
+
+  const savedSessionId =
+    sessionStorage.getItem(
+      "delima_chat_session"
+    );
+
+
+  console.log(
+    "🔎 Saved chat:",
+    !!savedChatId,
+    !!savedSessionId
+  );
+
+
+  if (
+    savedChatId &&
+    savedSessionId
+  ) {
+
+    liveChatId =
+      savedChatId;
+
+    liveChatSessionId =
+      savedSessionId;
+
+
+    window.delimaLiveChat = {
+
+      chatId:
+        liveChatId,
+
+      sessionId:
+        liveChatSessionId
+
+    };
+
+
+    // ================================================
+    // SEMBUNYIKAN LOGIN
+    // ================================================
+
+    if (chatLogin) {
+
+      chatLogin.classList.add(
+        "hidden"
       );
 
-    if (
-      params.get("openChat") !== "1"
-    ) {
-      return;
+    }
+
+
+    // ================================================
+    // PAPAR CONVERSATION
+    // ================================================
+
+    if (chatConversation) {
+
+      chatConversation.classList.remove(
+        "hidden"
+      );
+
+    }
+
+
+    // ================================================
+    // PAPAR NOTIFICATION BOX
+    // ================================================
+
+    const notificationBox =
+      document.getElementById(
+        "parentNotificationBox"
+      );
+
+
+    if (notificationBox) {
+
+      notificationBox.classList.remove(
+        "hidden"
+      );
+
+    }
+
+
+    // ================================================
+    // LOAD MESSAGE
+    // ================================================
+
+    await loadLiveMessages();
+
+    startLiveChatPolling();
+
+
+    console.log(
+      "✅ Parent chat session restored"
+    );
+
+  } else {
+
+    /*
+      Tiada session.
+
+      Panel masih dibuka tetapi Parent
+      perlu sahkan No KP + PIN.
+    */
+
+    if (chatLogin) {
+
+      chatLogin.classList.remove(
+        "hidden"
+      );
+
+    }
+
+
+    if (chatConversation) {
+
+      chatConversation.classList.add(
+        "hidden"
+      );
+
     }
 
 
     console.log(
-      "🔔 Membuka Live Chat daripada notification..."
-    );
-
-
-    // Tunggu semua komponen portal siap
-    setTimeout(
-      async function () {
-
-        // ==========================================
-        // 1. BUKA PANEL CHAT UTAMA
-        // ==========================================
-
-        const chatButton =
-          document.getElementById(
-            "chatButton"
-          );
-
-        const chatPanel =
-          document.getElementById(
-            "chatPanel"
-          );
-
-
-        if (chatPanel) {
-
-          chatPanel.classList.add(
-            "active"
-          );
-
-          chatPanel.setAttribute(
-            "aria-hidden",
-            "false"
-          );
-
-        } else if (chatButton) {
-
-          chatButton.click();
-
-        }
-
-
-        // ==========================================
-        // 2. BUKA LIVE CHAT
-        // ==========================================
-
-        const startButton =
-          document.getElementById(
-            "startLiveChatBtn"
-          );
-
-        if (startButton) {
-
-          startButton.click();
-
-        }
-
-
-        // ==========================================
-        // 3. RESTORE SESSION CHAT
-        // ==========================================
-
-        const savedChatId =
-          sessionStorage.getItem(
-            "delima_chat_id"
-          );
-
-        const savedSessionId =
-          sessionStorage.getItem(
-            "delima_chat_session"
-          );
-
-
-        if (
-          savedChatId &&
-          savedSessionId
-        ) {
-
-          liveChatId =
-            savedChatId;
-
-          liveChatSessionId =
-            savedSessionId;
-
-
-          window.delimaLiveChat = {
-
-            chatId:
-              liveChatId,
-
-            sessionId:
-              liveChatSessionId
-
-          };
-
-
-          console.log(
-            "✅ Chat session restored"
-          );
-
-
-          // ========================================
-          // PAPAR CONVERSATION
-          // ========================================
-
-          if (chatLogin) {
-
-            chatLogin.classList.add(
-              "hidden"
-            );
-
-          }
-
-
-          if (chatConversation) {
-
-            chatConversation.classList.remove(
-              "hidden"
-            );
-
-          }
-
-
-          // ========================================
-          // PAPAR NOTIFICATION STATUS
-          // ========================================
-
-          const notificationBox =
-            document.getElementById(
-              "parentNotificationBox"
-            );
-
-
-          if (notificationBox) {
-
-            notificationBox.classList.remove(
-              "hidden"
-            );
-
-          }
-
-
-          // ========================================
-          // LOAD MESEJ TERBARU
-          // ========================================
-
-          await loadLiveMessages();
-
-
-          // ========================================
-          // START AUTO REFRESH
-          // ========================================
-
-          startLiveChatPolling();
-
-
-          // ========================================
-          // SCROLL KE LIVE CHAT
-          // ========================================
-
-          if (liveChatArea) {
-
-            liveChatArea.scrollIntoView({
-              behavior: "smooth",
-              block: "nearest"
-            });
-
-          }
-
-
-          if (liveMessageInput) {
-
-            liveMessageInput.focus();
-
-          }
-
-        }
-
-
-        // ==========================================
-        // 4. BUANG ?openChat=1 DARIPADA URL
-        // ==========================================
-
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname
-        );
-
-
-      },
-      500
+      "ℹ️ Tiada session chat tersimpan"
     );
 
   }
-);
+
+
+  // ====================================================
+  // 4. SCROLL KE CHAT
+  // ====================================================
+
+  setTimeout(
+    function () {
+
+      if (liveChatArea) {
+
+        liveChatArea.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest"
+        });
+
+      }
+
+    },
+    200
+  );
+
+
+  // ====================================================
+  // 5. BERSIHKAN URL
+  // ====================================================
+
+  setTimeout(
+    function () {
+
+      const cleanUrl =
+        window.location.pathname;
+
+      window.history.replaceState(
+        {},
+        document.title,
+        cleanUrl
+      );
+
+    },
+    1000
+  );
+
+}
+
+
+// ======================================================
+// RUN
+// ======================================================
+
+if (
+  document.readyState === "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    openChatFromNotification
+  );
+
+} else {
+
+  openChatFromNotification();
+
+}
