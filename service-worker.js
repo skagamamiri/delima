@@ -38,125 +38,27 @@ const messaging =
   firebase.messaging();
 
 
+// ======================================================
+// BACKGROUND MESSAGE
+// ======================================================
+
+// FCM akan memaparkan notification daripada
+// notification payload yang dihantar oleh Code.gs.
+// Jangan panggil showNotification() di sini kerana
+// boleh menyebabkan duplicate notification.
+
 messaging.onBackgroundMessage(
   function(payload) {
 
     console.log(
-      "[SW] Background message:",
+      "[SW] Background FCM:",
       payload
     );
 
   }
 );
 
-
-    
-
-  }
-);
-
-
-// ======================================================
-// KLIK NOTIFICATION
-// ======================================================
-
-// ======================================================
-// NOTIFICATION CLICK
-// ======================================================
-
-self.addEventListener(
-  "notificationclick",
-  function(event) {
-
-    console.log(
-      "[SW] Notification clicked",
-      event.notification.data
-    );
-
-    event.notification.close();
-
-
-    // URL yang dihantar oleh FCM
-    let targetUrl =
-      event.notification.data &&
-      event.notification.data.url
-        ? event.notification.data.url
-        : "/delima/";
-
-
-    // Pastikan URL absolute
-    targetUrl =
-      new URL(
-        targetUrl,
-        self.location.origin
-      ).href;
-
-
-    console.log(
-      "[SW] Opening:",
-      targetUrl
-    );
-
-
-    event.waitUntil(
-
-      clients
-        .matchAll({
-          type: "window",
-          includeUncontrolled: true
-        })
-        .then(function(clientList) {
-
-          // ==========================================
-          // JIKA PORTAL SUDAH TERBUKA
-          // ==========================================
-
-          for (
-            const client of clientList
-          ) {
-
-            const clientUrl =
-              new URL(client.url);
-
-
-            if (
-              clientUrl.origin ===
-              self.location.origin
-            ) {
-
-              return client
-                .navigate(targetUrl)
-                .then(function() {
-
-                  return client.focus();
-
-                });
-
-            }
-
-          }
-
-
-          // ==========================================
-          // JIKA PORTAL BELUM TERBUKA
-          // ==========================================
-
-          if (clients.openWindow) {
-
-            return clients.openWindow(
-              targetUrl
-            );
-
-          }
-
-        })
-
-    );
-
-  }
-);
-
-const CACHE_NAME = "skamdelima-v29";
+const CACHE_NAME = "skamdelima-v30";
 
 const BASE = "/delima/";
 
