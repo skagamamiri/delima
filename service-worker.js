@@ -86,63 +86,103 @@ messaging.onBackgroundMessage(
 // KLIK NOTIFICATION
 // ======================================================
 
+// ======================================================
+// NOTIFICATION CLICK
+// ======================================================
+
 self.addEventListener(
   "notificationclick",
   function(event) {
 
+    console.log(
+      "[SW] Notification clicked",
+      event.notification.data
+    );
+
     event.notification.close();
 
-    const targetUrl =
-  event.notification.data?.url ||
-  "./";
+
+    // URL yang dihantar oleh FCM
+    let targetUrl =
+      event.notification.data &&
+      event.notification.data.url
+        ? event.notification.data.url
+        : "/delima/";
+
+
+    // Pastikan URL absolute
+    targetUrl =
+      new URL(
+        targetUrl,
+        self.location.origin
+      ).href;
+
+
+    console.log(
+      "[SW] Opening:",
+      targetUrl
+    );
 
 
     event.waitUntil(
 
-      clients.matchAll({
-        type: "window",
-        includeUncontrolled: true
-      })
+      clients
+        .matchAll({
+          type: "window",
+          includeUncontrolled: true
+        })
+        .then(function(clientList) {
 
-      .then(function(clientList) {
+          // ==========================================
+          // JIKA PORTAL SUDAH TERBUKA
+          // ==========================================
 
-        for (
-          const client of clientList
-        ) {
-
-          if (
-            "focus" in client
+          for (
+            const client of clientList
           ) {
 
-            client.navigate(
-              targetUrl
-            );
+            const clientUrl =
+              new URL(client.url);
 
-            return client.focus();
+
+            if (
+              clientUrl.origin ===
+              self.location.origin
+            ) {
+
+              return client
+                .navigate(targetUrl)
+                .then(function() {
+
+                  return client.focus();
+
+                });
+
+            }
 
           }
 
-        }
 
+          // ==========================================
+          // JIKA PORTAL BELUM TERBUKA
+          // ==========================================
 
-        if (
-          clients.openWindow
-        ) {
+          if (clients.openWindow) {
 
-          return clients.openWindow(
-            targetUrl
-          );
+            return clients.openWindow(
+              targetUrl
+            );
 
-        }
+          }
 
-      })
+        })
 
     );
 
   }
 );
 
-const CACHE_NAME = "skamdelima-v26";
+const CACHE_NAME = "skamdelima-v27";
 
 const BASE = "/delima/";
 
