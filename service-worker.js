@@ -156,7 +156,7 @@ self.addEventListener(
   }
 );
 
-const CACHE_NAME = "skamdelima-v27";
+const CACHE_NAME = "skamdelima-v28";
 
 const BASE = "/delima/";
 
