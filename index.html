@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  
+  <title>Portal Pengurusan DELIMa</title>
+  
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  
+
+  <meta
+    name="description"
+    content="Portal Pengurusan DELIMa SK Agama (MIS) Miri">
+
+  <meta
+    name="theme-color"
+    content="#0b3264">
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="./assets/icon-192.png">
+
+  <link
+    rel="apple-touch-icon"
+    href="./assets/icon-192.png">
+
+  <link
+    rel="manifest"
+    href="./manifest.json">
+
+  <link
+    rel="stylesheet"
+    href="./style.css?v=21">
+</head>
+
+<body>
+
+<header class="topbar">
+
+  <div class="school-brand">
+
+    <img src="./assets/logo.png"
+         alt="Logo SK Agama (MIS) Miri">
+
+    <div>
+      <strong>Portal Pengurusan DELIMa</strong>
+      <span>SK Agama (MIS) Miri</span>
+    </div>
+
+  </div>
+
+</header>
+
+
+<main>
+
+  <!-- HERO -->
+
+  <section class="hero">
+
+    <div class="hero-badge">
+  SK AGAMA (MIS) MIRI
+</div>
+
+    <h1>
+      Portal Pengurusan
+      <span>DELIMa</span>
+    </h1>
+
+    <p>
+      Semakan akaun DELIMa murid dengan mudah,
+      pantas dan selamat.
+    </p>
+
+  </section>
+<!-- QUICK ACCESS -->
+<section class="quick-access">
+
+  <button
+    class="quick-card"
+    onclick="goToSearch()">
+
+    <div class="quick-icon search">
+      🔎
+    </div>
+
+    <div>
+      <strong>Semak ID</strong>
+      <span>Akaun DELIMa</span>
+    </div>
+
+    <div class="quick-arrow">
+      ›
+    </div>
+
+  </button>
+
+
+  <button
+    class="quick-card"
+    onclick="openQuickTutorial()">
+
+    <div class="quick-icon tutorial">
+      📚
+    </div>
+
+    <div>
+      <strong>Tutorial</strong>
+      <span>Panduan DELIMa</span>
+    </div>
+
+    <div class="quick-arrow">
+      ›
+    </div>
+
+  </button>
+
+
+  <button
+    class="quick-card"
+    onclick="openQuickHelp()">
+
+    <div class="quick-icon help">
+      🆘
+    </div>
+
+    <div>
+      <strong>Bantuan ICT</strong>
+      <span>Dapatkan bantuan</span>
+    </div>
+
+    <div class="quick-arrow">
+      ›
+    </div>
+
+  </button>
+
+</section>
+
+  <!-- INSTALL APP -->
+
+  <section id="installCard"
+           class="install-card hidden">
+
+    <img src="assets/icon-192.png"
+         alt="Portal DELIMa">
+
+    <div class="install-info">
+      <strong>Install Portal DELIMa</strong>
+      <span>
+        Pasang portal pada telefon anda
+      </span>
+    </div>
+
+    <button id="installBtn">
+      Install
+    </button>
+
+  </section>
+
+
+  <!-- SEARCH CARD -->
+
+  <section class="search-card">
+
+    <div class="search-icon">
+      🔎
+    </div>
+
+    <h2>Semakan ID DELIMa</h2>
+
+    <p class="description">
+      Masukkan No. KP / MyKid murid dan
+      PIN penjaga untuk membuat semakan akaun.
+    </p>
+
+
+    <!-- IC -->
+
+    <div class="form-group">
+
+      <label for="nokp">
+        No. KP / MyKid
+      </label>
+
+      <input
+        type="text"
+        id="nokp"
+        inputmode="numeric"
+        autocomplete="off"
+        maxlength="12"
+        placeholder="Contoh: 121212130101">
+
+    </div>
+
+
+    <!-- PIN -->
+
+    <div class="form-group">
+
+      <label for="pin">
+        PIN
+      </label>
+
+      <div class="pin-input">
+
+        <input
+          type="password"
+          id="pin"
+          inputmode="numeric"
+          autocomplete="off"
+          maxlength="4"
+          placeholder="4 digit PIN">
+
+        <button
+          type="button"
+          id="showPinBtn"
+          onclick="togglePin()"
+          aria-label="Tunjuk PIN">
+          👁
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <button
+      id="btnCari"
+      class="search-button"
+      onclick="cariDelima()">
+
+      <span id="btnText">
+        Semak Akaun
+      </span>
+
+    </button>
+
+
+    <!-- LOADING -->
+
+    <div id="loading"
+         class="loading hidden">
+
+      <div class="spinner"></div>
+
+      <p>
+        Sedang membuat semakan...
+      </p>
+
+    </div>
+
+
+    <!-- MESSAGE -->
+
+    <div id="message"></div>
+
+
+    <!-- RESULT -->
+
+    <div id="result"
+         class="result hidden">
+
+      <div class="success-header">
+
+        <div class="success-check">
+          ✓
+        </div>
+
+        <div>
+          <strong>Akaun Dijumpai</strong>
+          <span>
+            Maklumat akaun DELIMa murid
+          </span>
+        </div>
+
+      </div>
+
+
+      <!-- NAMA -->
+
+      <div class="result-item">
+
+        <span>Nama Murid</span>
+
+        <strong id="nama">
+          -
+        </strong>
+
+      </div>
+
+
+      <!-- KELAS -->
+
+      <div class="result-item">
+
+        <span>Kelas</span>
+
+        <strong id="kelas">
+          -
+        </strong>
+
+      </div>
+
+
+      <!-- EMAIL -->
+
+      <div class="result-item">
+
+        <span>ID / Emel DELIMa</span>
+
+        <div class="value-action">
+
+          <strong id="delima">
+            -
+          </strong>
+
+          <button
+            type="button"
+            onclick="copyDelima()">
+
+            Salin
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- PASSWORD -->
+
+      <div class="result-item">
+
+        <span>Kata Laluan</span>
+
+        <div class="value-action">
+
+          <strong id="password">
+            ••••••••
+          </strong>
+
+          <div class="password-buttons">
+
+            <button
+              type="button"
+              onclick="togglePassword()">
+
+              👁 Lihat
+
+            </button>
+
+            <button
+              type="button"
+              onclick="copyPassword()">
+
+              Salin
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- LOGIN -->
+
+      <a
+        class="delima-login"
+        href="https://d3.delima.edu.my/"
+        target="_blank"
+        rel="noopener noreferrer">
+
+        Log Masuk DELIMa ↗
+
+      </a>
+
+
+      <button
+        type="button"
+        class="new-search"
+        onclick="resetSearch()">
+
+        Buat Semakan Baru
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- MENU -->
+
+  <section class="services">
+
+    <h2>Panduan & Bantuan</h2>
+
+    <div class="service-grid">
+
+      <button onclick="toggleSection('tutorial')">
+
+        <span class="service-icon">
+          📚
+        </span>
+
+        <strong>
+          Tutorial DELIMa
+        </strong>
+
+        <small>
+          Panduan penggunaan akaun
+        </small>
+
+      </button>
+
+
+      <button onclick="toggleSection('help')">
+
+        <span class="service-icon">
+          🆘
+        </span>
+
+        <strong>
+          Bantuan ICT
+        </strong>
+
+        <small>
+          Dapatkan bantuan akaun
+        </small>
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- TUTORIAL -->
+
+  <section id="tutorial" class="info-card hidden">
+
+  <div class="section-title">
+    <span>📚</span>
+
+    <div>
+      <h2>Tutorial DELIMa</h2>
+      <p>Panduan penggunaan DELIMa</p>
+    </div>
+  </div>
+
+  <div id="tutorialContent">
+    <p>Sedang memuatkan tutorial...</p>
+  </div>
+
+</section>
+
+  <!-- HELP -->
+
+  <section id="help" class="info-card hidden">
+
+  <div class="section-title">
+    <span>🆘</span>
+
+    <div>
+      <h2 id="publicHelpTitle">
+        Bantuan ICT
+      </h2>
+
+      <p>
+        Sokongan penggunaan akaun DELIMa
+      </p>
+    </div>
+  </div>
+
+  <div id="helpContent">
+    <p>Sedang memuatkan maklumat bantuan...</p>
+  </div>
+
+</section>
+</main>
+
+
+<footer>
+
+  <img src="assets/logo.png"
+       alt="Logo sekolah">
+
+  <strong>
+    Portal Pengurusan DELIMa
+  </strong>
+
+  <span>
+    SK Agama (MIS) Miri
+  </span>
+<span class="footer-system">
+  SISTEM PENGURUSAN ICT • SK AGAMA (MIS) MIRI
+</span>
+  <small>
+    © 2026 SK Agama (MIS) Miri
+  </small>
+
+</footer>
+
+<!-- =========================================
+     CHAT BANTUAN ICT
+========================================= -->
+
+<button
+  id="chatButton"
+  class="chat-float"
+  type="button"
+  aria-label="Buka Bantuan ICT">
+  💬
+  <span class="chat-badge">1</span>
+</button>
+
+<div
+  id="chatPanel"
+  class="chat-panel"
+  aria-hidden="true">
+
+  <div class="chat-header">
+
+    <div class="chat-avatar">🧑‍💻</div>
+
+    <div class="chat-title">
+      <strong>Bantuan ICT</strong>
+      <span>SK Agama (MIS) Miri</span>
+    </div>
+
+    <button
+      id="closeChat"
+      class="chat-close"
+      type="button"
+      aria-label="Tutup Bantuan ICT">
+      ×
+    </button>
+
+  </div>
+
+  <div class="chat-body">
+
+    <div class="bot-message">
+      <div class="bot-bubble">
+        Assalamualaikum 👋
+        <br><br>
+        Ada masalah dengan DELIMa?
+        Pilih bantuan di bawah.
+      </div>
+    </div>
+
+    <div class="chat-options">
+
+      <button type="button" data-help="password">
+        🔑 <span>Lupa Kata Laluan</span>
+      </button>
+
+      <button type="button" data-help="id">
+        👤 <span>Masalah ID DELIMa</span>
+      </button>
+
+      <button type="button" data-help="login">
+        🔐 <span>Tidak Boleh Log Masuk</span>
+      </button>
+
+      <button type="button" data-help="classroom">
+        📚 <span>Google Classroom</span>
+      </button>
+
+      <button type="button" data-help="other">
+        ❓ <span>Masalah Lain</span>
+      </button>
+
+      <button type="button" id="startLiveChatBtn">
+  💬 <span>Chat dengan Admin ICT</span>
+      </button>
+
+    </div>
+
+    <div id="chatAnswer"></div>
+
+  </div>
+    <!-- LIVE CHAT PARENT -->
+
+<div id="liveChatArea" class="live-chat-area hidden">
+
+  <!-- LOGIN / PENGESAHAN -->
+
+  <div id="chatLogin">
+
+    <div class="chat-live-title">
+      💬 Chat dengan Admin ICT
+    </div>
+
+    <p class="chat-live-info">
+      Sila sahkan maklumat murid sebelum
+      memulakan perbualan.
+    </p>
+
+    <input
+      type="text"
+      id="chatNokp"
+      inputmode="numeric"
+      maxlength="12"
+      placeholder="No. KP / MyKid">
+
+    <input
+      type="password"
+      id="chatPin"
+      inputmode="numeric"
+      maxlength="4"
+      placeholder="4 digit PIN">
+
+    <button
+      type="button"
+      id="chatLoginBtn"
+      class="chat-primary-btn">
+      Mula Chat
+    </button>
+
+    <div id="chatLoginMessage"></div>
+
+  </div>
+
+
+  <!-- RUANG PERBUALAN -->
+
+  <div id="chatConversation" class="hidden">
+
+    <div class="live-chat-user">
+
+      <strong id="chatStudentName">
+        Murid
+      </strong>
+
+      <span id="chatStudentClass"></span>
+
+      <small>
+        🟢 Chat Bantuan ICT
+      </small>
+
+    </div>
+
+
+    <div
+      id="liveMessages"
+      class="live-messages">
+    </div>
+
+
+    <div class="live-chat-compose">
+
+      <textarea
+        id="liveMessageInput"
+        maxlength="1000"
+        rows="2"
+        placeholder="Taip mesej..."></textarea>
+
+      <button
+        type="button"
+        id="sendLiveMessageBtn"
+        aria-label="Hantar mesej">
+        ➤
+      </button>
+
+    </div>
+
+  </div>
+<div
+  id="parentNotificationBox"
+  class="chat-notification-box hidden">
+
+  <button
+    id="enableParentNotificationBtn"
+    type="button">
+    🔔 Aktifkan Notifikasi
+  </button>
+
+  <small id="parentNotificationStatus">
+    Terima notifikasi apabila Admin ICT membalas.
+  </small>
+
+</div>
+</div>
+  <div class="chat-footer">
+    Bantuan ICT • SK Agama (MIS) Miri
+  </div>
+
+</div>
+
+
+  
+<script src="app.js?v=22"></script>
+<script
+  type="module"
+  src="parent-notification.js?v=6">
+</script>
+<script>
+
+if ("serviceWorker" in navigator) {
+
+  window.addEventListener(
+    "load",
+    () => {
+
+      navigator.serviceWorker
+        .register("service-worker.js")
+        .catch(console.error);
+
+    }
+  );
+
+}
+
+</script>
+
+</body>
+</html>

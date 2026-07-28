@@ -1,0 +1,25 @@
+{
+  "name": "Portal Pengurusan DELIMa",
+  "short_name": "DELIMa",
+  "description": "Portal Pengurusan DELIMa SK Agama (MIS) Miri",
+  "start_url": "/skamdelima/",
+  "scope": "/skamdelima/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#0b3264",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
