@@ -72,11 +72,7 @@ messaging.onBackgroundMessage(
     };
 
 
-    return self.registration
-      .showNotification(
-        title,
-        options
-      );
+    
 
   }
 );
