@@ -46,30 +46,8 @@ messaging.onBackgroundMessage(
       payload
     );
 
-    const title =
-      payload.notification?.title ||
-      "Portal DELIMa";
-
-    const options = {
-
-      body:
-        payload.notification?.body ||
-        "Anda mempunyai notifikasi baharu.",
-
-      icon:
-        "./assets/icon-192.png",
-
-      badge:
-        "./assets/icon-192.png",
-
-      data: {
-  url:
-    payload.data?.url ||
-    payload.fcmOptions?.link ||
-    "/delima/"
-}
-
-    };
+  }
+);
 
 
     
