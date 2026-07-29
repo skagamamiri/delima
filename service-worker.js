@@ -58,7 +58,7 @@ messaging.onBackgroundMessage(
   }
 );
 
-const CACHE_NAME = "skamdelima-v34";
+const CACHE_NAME = "skamdelima-v35";
 
 const BASE = "/delima/";
 
