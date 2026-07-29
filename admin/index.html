@@ -947,9 +947,9 @@ async function getDelimaServiceWorker() {
 
   // Cari registration sedia ada dahulu
   let registration =
-    await navigator.serviceWorker.getRegistration(
-      "/delima/"
-    );
+  await navigator.serviceWorker.getRegistration(
+    "/delima/admin/"
+  );
 
 
   if (registration) {
