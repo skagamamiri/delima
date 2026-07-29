@@ -1337,118 +1337,360 @@ if ("serviceWorker" in navigator) {
   });
 
 }
-// ==========================================
-// CHAT BANTUAN ICT - FINAL
-// ==========================================
+// ======================================================
+// CHAT PANEL - LIVE CHAT SAHAJA
+// ======================================================
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
 
-  const btn = document.getElementById("chatButton");
-  const panel = document.getElementById("chatPanel");
-  const closeBtn = document.getElementById("closeChat");
-  const answerBox = document.getElementById("chatAnswer");
-  const badge = document.querySelector(".chat-badge");
+    const btn =
+      document.getElementById("chatButton");
 
-  if (!btn || !panel) {
-    console.error("Chat ICT: button/panel tidak dijumpai");
-    return;
-  }
+    const panel =
+      document.getElementById("chatPanel");
 
-  console.log("Chat ICT FINAL aktif");
+    const closeBtn =
+      document.getElementById("closeChat");
 
-  // BUKA CHAT
-  btn.onclick = function (event) {
-    event.preventDefault();
-    event.stopPropagation();
+    const badge =
+      document.querySelector(".chat-badge");
 
-    panel.classList.add("active");
-    panel.setAttribute("aria-hidden", "false");
+    const liveArea =
+      document.getElementById("liveChatArea");
 
-    if (badge) {
-      badge.style.display = "none";
+
+    if (!btn || !panel) {
+
+      console.error(
+        "Chat ICT: button/panel tidak dijumpai"
+      );
+
+      return;
     }
-  };
 
-  // TUTUP CHAT
-  if (closeBtn) {
-    closeBtn.onclick = function (event) {
-      event.preventDefault();
-      event.stopPropagation();
 
-      panel.classList.remove("active");
-      panel.setAttribute("aria-hidden", "true");
-    };
-  }
+    console.log(
+      "✅ Live Chat ICT aktif"
+    );
 
-  // PILIHAN CHAT
-  document.querySelectorAll(".chat-options button")
-    .forEach(function (button) {
 
-      button.onclick = function () {
+    // ==========================================
+    // BUKA CHAT
+    // ==========================================
 
-        const type = button.getAttribute("data-help");
-        let answer = "";
+    btn.onclick =
+      function (event) {
 
-        if (type === "password") {
+        event.preventDefault();
+        event.stopPropagation();
 
-          answer = `
-            🔑 <strong>Lupa Kata Laluan</strong><br><br>
-            Gunakan menu <strong>Semak ID</strong>.
-            Masukkan No. KP/MyKid murid dan PIN penjaga
-            untuk melihat maklumat akaun DELIMa.
-          `;
 
-        } else if (type === "id") {
+        panel.classList.add(
+          "active"
+        );
 
-          answer = `
-            👤 <strong>Masalah ID DELIMa</strong><br><br>
-            Pastikan No. KP/MyKid murid dimasukkan dengan betul.
-            Jika akaun masih tidak ditemui, sila hubungi pihak ICT sekolah.
-          `;
+        panel.setAttribute(
+          "aria-hidden",
+          "false"
+        );
 
-        } else if (type === "login") {
 
-          answer = `
-            🔐 <strong>Tidak Boleh Log Masuk</strong><br><br>
-            Pastikan ID DELIMa dan kata laluan dimasukkan dengan tepat.
-            Pastikan juga tiada ruang kosong semasa menyalin.
-          `;
+        // Live Chat terus dipaparkan
+        if (liveArea) {
 
-        } else if (type === "classroom") {
+          liveArea.classList.remove(
+            "hidden"
+          );
 
-          answer = `
-            📚 <strong>Google Classroom</strong><br><br>
-            Sila buka bahagian <strong>Tutorial</strong>
-            untuk melihat panduan Google Classroom.
-          `;
-
-        } else {
-
-          answer = `
-            🧑‍💻 <strong>Bantuan Lanjut</strong><br><br>
-            Sila buka bahagian <strong>Bantuan ICT</strong>
-            untuk mendapatkan bantuan daripada pihak ICT sekolah.
-          `;
         }
 
-        if (answerBox) {
-          answerBox.innerHTML =
-            `<div class="chat-answer-bubble">${answer}</div>`;
+
+        // Hilangkan badge
+        if (badge) {
+
+          badge.style.display =
+            "none";
+
         }
+
+
+        // Jika sudah ada conversation,
+        // scroll ke mesej
+        setTimeout(
+          function () {
+
+            if (liveArea) {
+
+              liveArea.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+              });
+
+            }
+
+          },
+          100
+        );
+
       };
-    });
 
-  // ESC = TUTUP
-  document.addEventListener("keydown", function (event) {
 
-    if (event.key === "Escape") {
-      panel.classList.remove("active");
-      panel.setAttribute("aria-hidden", "true");
+    // ==========================================
+    // TUTUP CHAT
+    // ==========================================
+
+    if (closeBtn) {
+
+      closeBtn.onclick =
+        function (event) {
+
+          event.preventDefault();
+          event.stopPropagation();
+
+
+          panel.classList.remove(
+            "active"
+          );
+
+          panel.setAttribute(
+            "aria-hidden",
+            "true"
+          );
+
+        };
+
     }
 
-  });
 
-});
+    // ==========================================
+    // ESC = TUTUP CHAT
+    // ==========================================
+
+    document.addEventListener(
+      "keydown",
+      function (event) {
+
+        if (event.key === "Escape") {
+
+          panel.classList.remove(
+            "active"
+          );
+
+          panel.setAttribute(
+            "aria-hidden",
+            "true"
+          );
+
+        }
+
+      }
+    );
+
+  }
+);
+
+// ======================================================
+// FAQ - BANTUAN ICT
+// ======================================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const answerBox =
+      document.getElementById(
+        "helpAnswer"
+      );
+
+
+    const buttons =
+      document.querySelectorAll(
+        ".ict-help-options [data-help]"
+      );
+
+
+    if (!buttons.length) {
+
+      console.log(
+        "ℹ️ Tiada butang FAQ dijumpai"
+      );
+
+      return;
+    }
+
+
+    console.log(
+      "✅ FAQ Bantuan ICT aktif"
+    );
+
+
+    buttons.forEach(
+      function (button) {
+
+        button.addEventListener(
+          "click",
+          function () {
+
+            const type =
+              button.getAttribute(
+                "data-help"
+              );
+
+
+            let answer = "";
+
+
+            // ======================================
+            // LUPA PASSWORD
+            // ======================================
+
+            if (type === "password") {
+
+              answer = `
+                🔑
+                <strong>
+                  Lupa Kata Laluan
+                </strong>
+
+                <br><br>
+
+                Gunakan menu
+                <strong>Semak ID</strong>.
+
+                Masukkan No. KP / MyKid murid
+                dan PIN penjaga untuk melihat
+                ID DELIMa dan kata laluan.
+              `;
+
+            }
+
+
+            // ======================================
+            // MASALAH ID
+            // ======================================
+
+            else if (type === "id") {
+
+              answer = `
+                👤
+                <strong>
+                  Masalah ID DELIMa
+                </strong>
+
+                <br><br>
+
+                Pastikan No. KP / MyKid murid
+                dimasukkan dengan betul.
+
+                Jika akaun masih tidak ditemui,
+                sila hubungi Admin ICT melalui
+                Live Chat.
+              `;
+
+            }
+
+
+            // ======================================
+            // LOGIN
+            // ======================================
+
+            else if (type === "login") {
+
+              answer = `
+                🔐
+                <strong>
+                  Tidak Boleh Log Masuk
+                </strong>
+
+                <br><br>
+
+                Pastikan ID DELIMa dan
+                kata laluan dimasukkan dengan tepat.
+
+                Pastikan juga tiada ruang kosong
+                semasa menyalin ID atau kata laluan.
+              `;
+
+            }
+
+
+            // ======================================
+            // GOOGLE CLASSROOM
+            // ======================================
+
+            else if (type === "classroom") {
+
+              answer = `
+                📚
+                <strong>
+                  Google Classroom
+                </strong>
+
+                <br><br>
+
+                Sila buka bahagian
+                <strong>Tutorial DELIMa</strong>
+                untuk melihat panduan penggunaan
+                Google Classroom.
+              `;
+
+            }
+
+
+            // ======================================
+            // MASALAH LAIN
+            // ======================================
+
+            else {
+
+              answer = `
+                ❓
+                <strong>
+                  Masalah Lain
+                </strong>
+
+                <br><br>
+
+                Jika masalah anda tidak disenaraikan,
+                sila gunakan
+                <strong>Chat dengan Admin ICT</strong>
+                untuk mendapatkan bantuan lanjut.
+              `;
+
+            }
+
+
+            // ======================================
+            // PAPAR JAWAPAN
+            // ======================================
+
+            if (answerBox) {
+
+              answerBox.innerHTML = `
+                <div class="chat-answer-bubble">
+                  ${answer}
+                </div>
+              `;
+
+
+              answerBox.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+              });
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+  }
+);
+
 // ======================================================
 // LIVE CHAT PARENT
 // ======================================================
@@ -1465,8 +1707,6 @@ let liveChatTimer = null;
 // ELEMENTS
 // ------------------------------------------------------
 
-const startLiveChatBtn =
-  document.getElementById("startLiveChatBtn");
 
 const liveChatArea =
   document.getElementById("liveChatArea");
@@ -1505,37 +1745,6 @@ const sendLiveMessageBtn =
   document.getElementById("sendLiveMessageBtn");
 
 
-// ------------------------------------------------------
-// BUKA LIVE CHAT
-// ------------------------------------------------------
-
-if (startLiveChatBtn) {
-
-  startLiveChatBtn.addEventListener(
-    "click",
-    function () {
-
-      if (!liveChatArea) return;
-
-      liveChatArea.classList.remove("hidden");
-
-      // sembunyikan jawapan FAQ
-      const faqAnswer =
-        document.getElementById("chatAnswer");
-
-      if (faqAnswer) {
-        faqAnswer.innerHTML = "";
-      }
-
-      liveChatArea.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest"
-      });
-
-    }
-  );
-
-}
 
 
 // ------------------------------------------------------
@@ -2268,15 +2477,7 @@ async function openChatFromNotification() {
   }
 
 
-  // Kosongkan FAQ
-  const faqAnswer =
-    document.getElementById(
-      "chatAnswer"
-    );
-
-  if (faqAnswer) {
-    faqAnswer.innerHTML = "";
-  }
+ 
 
 
   // ====================================================
