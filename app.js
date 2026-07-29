@@ -873,6 +873,10 @@ async function loadPublicTutorials() {
 // LOAD HELP
 // =====================================
 
+// =====================================
+// LOAD HELP
+// =====================================
+
 async function loadPublicHelp() {
 
   const container =
@@ -880,8 +884,57 @@ async function loadPublicHelp() {
       "helpContent"
     );
 
+  if (!container) {
+    return;
+  }
 
-  if (!container) return;
+
+  // =====================================
+  // CARI / CIPTA RUANG INFO DINAMIK
+  // =====================================
+
+  let dynamicContainer =
+    document.getElementById(
+      "publicHelpDynamic"
+    );
+
+
+  if (!dynamicContainer) {
+
+    dynamicContainer =
+      document.createElement("div");
+
+    dynamicContainer.id =
+      "publicHelpDynamic";
+
+
+    /*
+      Letakkan maklumat Google Sheet
+      selepas FAQ.
+    */
+
+    const helpAnswer =
+      document.getElementById(
+        "helpAnswer"
+      );
+
+
+    if (helpAnswer) {
+
+      helpAnswer.insertAdjacentElement(
+        "afterend",
+        dynamicContainer
+      );
+
+    } else {
+
+      container.appendChild(
+        dynamicContainer
+      );
+
+    }
+
+  }
 
 
   try {
@@ -914,7 +967,9 @@ async function loadPublicHelp() {
       data.help || {};
 
 
+    // =====================================
     // TITLE
+    // =====================================
 
     const title =
       document.getElementById(
@@ -922,7 +977,10 @@ async function loadPublicHelp() {
       );
 
 
-    if (title && help.tajuk) {
+    if (
+      title &&
+      help.tajuk
+    ) {
 
       title.textContent =
         help.tajuk;
@@ -930,10 +988,18 @@ async function loadPublicHelp() {
     }
 
 
-    container.innerHTML = "";
+    // =====================================
+    // PENTING:
+    // KOSONGKAN DYNAMIC SAHAJA
+    // BUKAN helpContent
+    // =====================================
+
+    dynamicContainer.innerHTML = "";
 
 
+    // =====================================
     // DESCRIPTION
+    // =====================================
 
     if (help.penerangan) {
 
@@ -943,12 +1009,16 @@ async function loadPublicHelp() {
           help.penerangan
         );
 
-      container.appendChild(box);
+      dynamicContainer.appendChild(
+        box
+      );
 
     }
 
 
+    // =====================================
     // OFFICER
+    // =====================================
 
     if (help.pegawai) {
 
@@ -958,12 +1028,16 @@ async function loadPublicHelp() {
           help.pegawai
         );
 
-      container.appendChild(box);
+      dynamicContainer.appendChild(
+        box
+      );
 
     }
 
 
+    // =====================================
     // TIME
+    // =====================================
 
     if (help.waktu) {
 
@@ -973,15 +1047,22 @@ async function loadPublicHelp() {
           help.waktu
         );
 
-      container.appendChild(box);
+      dynamicContainer.appendChild(
+        box
+      );
 
     }
 
 
-    // CONTACT BUTTONS
+    // =====================================
+    // CONTACT
+    // =====================================
 
     const contact =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
+
 
     contact.style.display =
       "grid";
@@ -993,17 +1074,25 @@ async function loadPublicHelp() {
       "15px";
 
 
+    // =====================================
     // WHATSAPP
+    // =====================================
 
     if (help.whatsapp) {
 
       const number =
-        String(help.whatsapp)
-          .replace(/\D/g, "");
+        String(
+          help.whatsapp
+        ).replace(
+          /\D/g,
+          ""
+        );
 
 
       const whatsapp =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
 
       whatsapp.href =
@@ -1013,6 +1102,7 @@ async function loadPublicHelp() {
 
       whatsapp.target =
         "_blank";
+
 
       whatsapp.rel =
         "noopener noreferrer";
@@ -1035,12 +1125,16 @@ async function loadPublicHelp() {
     }
 
 
+    // =====================================
     // EMAIL
+    // =====================================
 
     if (help.email) {
 
       const email =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
 
       email.href =
@@ -1067,8 +1161,23 @@ async function loadPublicHelp() {
     }
 
 
-    container.appendChild(
-      contact
+    // =====================================
+    // MASUKKAN CONTACT
+    // =====================================
+
+    if (
+      contact.children.length > 0
+    ) {
+
+      dynamicContainer.appendChild(
+        contact
+      );
+
+    }
+
+
+    console.log(
+      "✅ Bantuan ICT + FAQ berjaya dimuatkan"
     );
 
 
@@ -1080,7 +1189,13 @@ async function loadPublicHelp() {
     );
 
 
-    container.innerHTML =
+    /*
+      Jangan padam FAQ jika API gagal.
+      Hanya paparkan error dalam
+      bahagian dynamic.
+    */
+
+    dynamicContainer.innerHTML =
       '<div class="help-box">' +
       '<strong>Maklumat bantuan tidak dapat dimuatkan.</strong>' +
       '<p>Sila cuba semula kemudian.</p>' +
@@ -1089,7 +1204,6 @@ async function loadPublicHelp() {
   }
 
 }
-
 
 // =====================================
 // CREATE HELP BOX
