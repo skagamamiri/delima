@@ -1,23 +1,23 @@
 {
-  "id": "/delima/admin.html",
-  "name": "Admin DELIMa",
+  "id": "./admin.html",
+  "name": "Admin DELIMa - SK Agama (MIS) Miri",
   "short_name": "Admin DELIMa",
-  "description": "Portal Admin DELIMa SK Agama (MIS) Miri",
-  "start_url": "/delima/admin.html",
-  "scope": "/delima/",
+  "description": "Sistem Pengurusan DELIMa SK Agama (MIS) Miri",
+  "start_url": "./admin.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f7fb",
-  "theme_color": "#123b72",
-  "orientation": "portrait-primary",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#0b3264",
   "icons": [
     {
-      "src": "assets/admin-icon-192.png",
+      "src": "./assets/admin-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "assets/admin-icon-512.png",
+      "src": "./assets/admin-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
