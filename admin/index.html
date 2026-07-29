@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <title>
+    Admin DELIMa | SK Agama (MIS) Miri
+  </title>
+
+  <meta
+    name="description"
+    content="Portal Admin DELIMa SK Agama (MIS) Miri">
+
+  <meta
+    name="theme-color"
+    content="#123b72">
+
+  <!-- PWA ADMIN -->
+  <link
+    rel="manifest"
+    href="./admin-manifest.json">
+
+  <link
+  rel="icon"
+  type="image/png"
+  href="./assets/admin-icon-192.png">
+
+  <link
+  rel="apple-touch-icon"
+  href="./assets/admin-icon-192.png">
+
+  <!-- ICON -->
+  <link
+    rel="icon"
+    type="image/png"
+    href="./assets/admin-icon-192.png">
+
+  <link
+    rel="apple-touch-icon"
+    href="./assets/admin-icon-192.png">
+
+  <!-- iOS -->
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes">
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default">
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="Admin DELIMa">
+
+  <!-- CSS -->
+  <link
+    rel="stylesheet"
+    href="admin.css?v=27">
+
+</head>
+
+<body>
+
+<!-- =========================
+     LOGIN
+========================= -->
+
+<section id="loginPage" class="login-page">
+
+  <div class="login-card">
+
+    <img
+      src="assets/logo.png"
+      class="login-logo"
+      alt="Logo Sekolah">
+
+    <h1>Admin DELIMa</h1>
+
+    <p>
+      Portal Pengurusan DELIMa<br>
+      SK Agama (MIS) Miri
+    </p>
+
+    <label for="username">
+      Username
+    </label>
+
+    <input
+      id="username"
+      type="text"
+      autocomplete="username"
+      placeholder="Username">
+
+    <label for="adminPassword">
+      Kata Laluan
+    </label>
+
+    <div class="password-box">
+
+      <input
+        id="adminPassword"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Kata laluan">
+
+      <button
+        type="button"
+        onclick="toggleAdminPassword()">
+        👁
+      </button>
+
+    </div>
+
+    <button
+      id="loginBtn"
+      class="primary-btn"
+      onclick="adminLogin()">
+
+      Log Masuk
+
+    </button>
+
+    <div id="loginMessage"></div>
+
+    <a
+      href="./"
+      class="back-link">
+
+      ← Kembali ke Portal DELIMa
+
+    </a>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     ADMIN APP
+========================= -->
+
+<section
+  id="dashboardPage"
+  class="dashboard hidden">
+
+
+  <!-- HEADER -->
+
+  <header class="admin-header">
+
+    <div class="admin-brand">
+
+      <img
+        src="assets/logo.png"
+        alt="Logo Sekolah">
+
+      <div>
+        <strong>Admin DELIMa</strong>
+        <span>SK Agama (MIS) Miri</span>
+      </div>
+
+    </div>
+<button
+  id="enableNotificationBtn"
+  type="button"
+  onclick="enableAdminNotifications()">
+  🔔 Aktifkan Notifikasi
+</button>
+
+    
+<span id="notificationStatus"></span>
+
+    <button
+      class="logout-btn"
+      onclick="logoutAdmin()">
+
+      Log Keluar
+
+    </button>
+
+  </header>
+
+
+  <main class="admin-main">
+
+
+    <!-- WELCOME -->
+
+    <section class="welcome">
+
+      <span class="badge">
+        ADMIN DASHBOARD
+      </span>
+
+      <h1>
+        Pengurusan DELIMa
+      </h1>
+
+      <p>
+        Urus akaun murid, tutorial dan
+        maklumat bantuan ICT.
+      </p>
+
+    </section>
+
+
+    <!-- NAVIGATION -->
+
+    <nav class="admin-tabs">
+
+      <button
+        id="tabStudents"
+        class="tab active"
+        onclick="showAdminSection('students')">
+
+        <span>👥</span>
+        Murid
+
+      </button>
+
+
+      <button
+        id="tabTutorial"
+        class="tab"
+        onclick="showAdminSection('tutorial')">
+
+        <span>📚</span>
+        Tutorial
+
+      </button>
+
+
+      <button
+        id="tabHelp"
+        class="tab"
+        onclick="showAdminSection('help')">
+
+        <span>🆘</span>
+        Bantuan ICT
+
+      </button>
+
+      <button
+        id="tabChat"
+        class="tab chat-tab"
+        onclick="showAdminSection('chat')">
+
+        <span>💬</span>
+        Live Chat
+        <b id="chatUnreadBadge" class="chat-unread-badge hidden">0</b>
+
+      </button>
+
+    </nav>
+
+
+    <!-- =================================
+         STUDENTS
+    ================================= -->
+
+    <section
+      id="studentsSection"
+      class="admin-section">
+
+
+      <!-- STATS -->
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+
+          <span>👥</span>
+
+          <div>
+            <small>Jumlah Murid</small>
+
+            <strong id="totalStudents">
+              -
+            </strong>
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span>🏫</span>
+
+          <div>
+            <small>Jumlah Kelas</small>
+
+            <strong id="totalClasses">
+              -
+            </strong>
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span>📧</span>
+
+          <div>
+            <small>Akaun DELIMa</small>
+
+            <strong id="totalAccounts">
+              -
+            </strong>
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span>🔑</span>
+
+          <div>
+            <small>PIN Belum Ada</small>
+
+            <strong id="missingPin">
+              -
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- STUDENT PANEL -->
+
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+            <h2>Senarai Murid</h2>
+
+            <p>
+              Cari akaun DELIMa berdasarkan
+              nama, No. KP atau ID DELIMa.
+            </p>
+          </div>
+
+          <button
+            class="secondary-btn"
+            onclick="loadDashboard()">
+
+            ↻ Refresh
+
+          </button>
+
+        </div>
+
+
+        <div class="search-tools">
+
+          <input
+            id="studentSearch"
+            type="search"
+            placeholder="Cari murid...">
+
+          <select id="classFilter">
+
+            <option value="">
+              Semua Kelas
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div
+          id="loadingStudents"
+          class="loading hidden">
+
+          Memuatkan data murid...
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Nama</th>
+                <th>No. KP</th>
+                <th>Kelas</th>
+                <th>ID DELIMa</th>
+                <th>PIN</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="studentTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================
+         TUTORIAL
+    ================================= -->
+
+    <section
+      id="tutorialSection"
+      class="admin-section hidden">
+
+
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+
+            <h2>
+              📚 Pengurusan Tutorial
+            </h2>
+
+            <p>
+              Tambah dan kemas kini panduan
+              penggunaan DELIMa.
+            </p>
+
+          </div>
+
+
+          <button
+            class="primary-small"
+            onclick="openTutorialForm()">
+
+            + Tambah Tutorial
+
+          </button>
+
+        </div>
+
+
+        <div
+          id="tutorialLoading"
+          class="loading hidden">
+
+          Memuatkan tutorial...
+
+        </div>
+
+
+        <div id="tutorialList"
+             class="tutorial-list">
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================
+         HELP
+    ================================= -->
+
+    <section
+      id="helpSection"
+      class="admin-section hidden">
+
+
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div>
+
+            <h2>
+              🆘 Bantuan ICT
+            </h2>
+
+            <p>
+              Maklumat ini akan dipaparkan
+              pada portal pengguna.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="helpMessage"
+          class="form-message">
+
+        </div>
+
+
+        <div class="admin-form">
+
+          <label>
+            Tajuk
+          </label>
+
+          <input
+            id="helpTitle"
+            type="text"
+            placeholder="Bantuan ICT">
+
+
+          <label>
+            Penerangan
+          </label>
+
+          <textarea
+            id="helpDescription"
+            rows="5"
+            placeholder="Masukkan penerangan bantuan...">
+          </textarea>
+
+
+          <label>
+            Pegawai / Penyelaras
+          </label>
+
+          <input
+            id="helpOfficer"
+            type="text"
+            placeholder="Contoh: Penyelaras ICT">
+
+
+          <label>
+            No. WhatsApp
+          </label>
+
+          <input
+            id="helpWhatsapp"
+            type="tel"
+            inputmode="numeric"
+            placeholder="Contoh: 60123456789">
+
+
+          <label>
+            E-mel
+          </label>
+
+          <input
+            id="helpEmail"
+            type="email"
+            placeholder="contoh@moe-dl.edu.my">
+
+
+          <label>
+            Waktu Bantuan
+          </label>
+
+          <input
+            id="helpTime"
+            type="text"
+            placeholder="Isnin - Jumaat, 8.00 pagi - 4.00 petang">
+
+
+          <button
+            id="saveHelpBtn"
+            class="primary-btn form-save"
+            onclick="saveHelp()">
+
+            Simpan Maklumat Bantuan
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================
+         LIVE CHAT
+    ================================= -->
+
+    <section id="chatSection" class="admin-section hidden">
+      <div class="panel chat-admin-panel">
+
+        <div class="panel-header">
+          <div>
+            <h2>💬 Live Chat Ibu Bapa</h2>
+            <p>Baca dan balas mesej ibu bapa secara terus.</p>
+          </div>
+          <button class="secondary-btn" type="button"
+                  onclick="loadAdminChats(true)">↻ Refresh</button>
+        </div>
+
+        <div id="chatAdminMessage"></div>
+
+        <div class="admin-chat-layout">
+          <aside class="admin-chat-sidebar">
+            <div class="admin-chat-sidebar-title">
+              <strong>Perbualan</strong>
+              <span id="chatConversationCount">0</span>
+            </div>
+            <div id="chatConversationList" class="admin-chat-list">
+              <div class="chat-empty">Tiada perbualan.</div>
+            </div>
+          </aside>
+
+          <section class="admin-chat-room">
+            <div id="chatRoomEmpty" class="chat-room-empty">
+              <span>💬</span>
+              <strong>Pilih perbualan</strong>
+              <p>Pilih ibu bapa di sebelah untuk membaca dan membalas mesej.</p>
+            </div>
+
+            <div id="chatRoomActive" class="hidden">
+              <div class="admin-chat-room-header">
+                <div>
+                  <strong id="activeChatName">Ibu Bapa</strong>
+                  <span id="activeChatMeta">-</span>
+                </div>
+                <button id="closeConversationBtn" type="button"
+                        class="chat-close-conversation"
+                        onclick="closeAdminConversation()">Tutup Perbualan</button>
+              </div>
+
+              <div id="adminChatMessages" class="admin-chat-messages"></div>
+
+              <form class="admin-chat-compose" onsubmit="sendAdminChat(event)">
+                <textarea id="adminChatInput" rows="2" maxlength="1000"
+                          placeholder="Taip balasan kepada ibu bapa..."
+                          onkeydown="adminChatKeydown(event)"></textarea>
+                <button
+  id="adminChatSendBtn"
+  type="button"
+  onclick="sendAdminChat()">
+  Hantar
+</button>
+              </form>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+</section>
+
+
+<!-- =========================
+     TUTORIAL MODAL
+========================= -->
+
+<div
+  id="tutorialModal"
+  class="modal hidden">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <div>
+        <h2 id="tutorialFormTitle">
+          Tambah Tutorial
+        </h2>
+
+        <p>
+          Maklumat tutorial Portal DELIMa
+        </p>
+      </div>
+
+
+      <button
+        class="modal-close"
+        onclick="closeTutorialForm()">
+
+        ✕
+
+      </button>
+
+    </div>
+
+
+    <input
+      type="hidden"
+      id="tutorialId">
+
+
+    <label>
+      Tajuk Tutorial
+    </label>
+
+    <input
+      id="tutorialTitle"
+      type="text"
+      placeholder="Contoh: Cara Log Masuk DELIMa">
+
+
+    <label>
+      Penerangan
+    </label>
+
+    <textarea
+      id="tutorialDescription"
+      rows="5"
+      placeholder="Masukkan penerangan tutorial...">
+    </textarea>
+
+
+    <label>
+      Link Tutorial / Video
+    </label>
+
+    <input
+      id="tutorialLink"
+      type="url"
+      placeholder="https://...">
+
+
+    <div class="two-columns">
+
+      <div>
+
+        <label>
+          Status
+        </label>
+
+        <select id="tutorialStatus">
+
+          <option value="AKTIF">
+            AKTIF
+          </option>
+
+          <option value="TIDAK AKTIF">
+            TIDAK AKTIF
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Susunan
+        </label>
+
+        <input
+          id="tutorialOrder"
+          type="number"
+          min="1"
+          value="1">
+
+      </div>
+
+    </div>
+
+
+    <div id="tutorialFormMessage"></div>
+
+
+    <div class="modal-actions">
+
+      <button
+        class="secondary-btn"
+        onclick="closeTutorialForm()">
+
+        Batal
+
+      </button>
+
+
+      <button
+        id="saveTutorialBtn"
+        class="primary-small"
+        onclick="saveTutorial()">
+
+        Simpan Tutorial
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script src="admin.js?v=27"></script>
+
+ <script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+
+import {
+  getMessaging,
+  getToken
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-messaging.js";
+
+
+// ======================================================
+// FIREBASE CONFIG
+// ======================================================
+
+const firebaseConfig = {
+
+  apiKey:
+    "AIzaSyAJKSa245Vio8tt-YMXHs3r6eTxt_SMjyQ",
+
+  authDomain:
+    "skam-delima.firebaseapp.com",
+
+  projectId:
+    "skam-delima",
+
+  storageBucket:
+    "skam-delima.firebasestorage.app",
+
+  messagingSenderId:
+    "894657583454",
+
+  appId:
+    "1:894657583454:web:d900e56dc6d44e6cc6617cf"
+
+};
+
+
+const VAPID_KEY =
+  "BK5wdDWPAGVNoFvNTJE5jML_6J4vEeybLBSdYh5hyKM4ZL9eOMjWqwxr4TXA5Xg-uwspY6ndOnFX7d4CPvtF8iw";
+
+
+const firebaseApp =
+  initializeApp(firebaseConfig);
+
+const messaging =
+  getMessaging(firebaseApp);
+
+
+// ======================================================
+// DEVICE ID
+// ======================================================
+
+function getDeviceId() {
+
+  let id =
+    localStorage.getItem(
+      "delimaDeviceId"
+    );
+
+  if (!id) {
+
+    if (
+      window.crypto &&
+      typeof crypto.randomUUID === "function"
+    ) {
+
+      id =
+        crypto.randomUUID();
+
+    } else {
+
+      id =
+        "device-" +
+        Date.now() +
+        "-" +
+        Math.random()
+          .toString(36)
+          .substring(2);
+
+    }
+
+    localStorage.setItem(
+      "delimaDeviceId",
+      id
+    );
+
+  }
+
+  return id;
+}
+
+
+// ======================================================
+// PLATFORM
+// ======================================================
+
+function getPlatform() {
+
+  const ua =
+    navigator.userAgent.toLowerCase();
+
+  if (
+    /iphone|ipad|ipod/.test(ua)
+  ) {
+
+    return "IOS";
+
+  }
+
+  if (
+    /android/.test(ua)
+  ) {
+
+    return "ANDROID";
+
+  }
+
+  return "WEB";
+}
+
+
+// ======================================================
+// REGISTER / GET SERVICE WORKER
+// ======================================================
+
+async function getDelimaServiceWorker() {
+
+  console.log(
+    "1️⃣ Checking Service Worker..."
+  );
+
+
+  // Cari registration sedia ada dahulu
+  let registration =
+    await navigator.serviceWorker.getRegistration(
+      "/delima/"
+    );
+
+
+  if (registration) {
+
+    console.log(
+      "2️⃣ Existing Service Worker:",
+      registration.scope
+    );
+
+  } else {
+
+    console.log(
+      "2️⃣ Registering Service Worker..."
+    );
+
+
+    registration =
+      await navigator.serviceWorker.register(
+        "./service-worker.js",
+        {
+          scope: "./"
+        }
+      );
+
+
+    console.log(
+      "3️⃣ Service Worker registered:",
+      registration.scope
+    );
+
+  }
+
+
+  // Tunggu SW sampai ACTIVE
+  if (
+    registration.installing
+  ) {
+
+    console.log(
+      "⏳ Service Worker installing..."
+    );
+
+
+    await new Promise(
+      function(resolve, reject) {
+
+        const worker =
+          registration.installing;
+
+
+        worker.addEventListener(
+          "statechange",
+          function() {
+
+            console.log(
+              "SW state:",
+              worker.state
+            );
+
+
+            if (
+              worker.state === "activated"
+            ) {
+
+              resolve();
+
+            }
+
+
+            if (
+              worker.state === "redundant"
+            ) {
+
+              reject(
+                new Error(
+                  "Service Worker menjadi redundant."
+                )
+              );
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+  }
+
+
+  // Jika waiting
+  if (
+    registration.waiting
+  ) {
+
+    console.log(
+      "⏳ Service Worker waiting..."
+    );
+
+  }
+
+
+  // Pastikan ada active worker
+  if (
+    !registration.active
+  ) {
+
+    console.log(
+      "⏳ Menunggu Service Worker ready..."
+    );
+
+
+    registration =
+      await navigator.serviceWorker.ready;
+
+  }
+
+
+  console.log(
+    "4️⃣ Service Worker READY:",
+    registration.scope
+  );
+
+
+  return registration;
+}
+
+
+// ======================================================
+// ADMIN NOTIFICATION
+// ======================================================
+
+window.enableAdminNotifications =
+  async function () {
+
+    const button =
+      document.getElementById(
+        "enableNotificationBtn"
+      );
+
+    const status =
+      document.getElementById(
+        "notificationStatus"
+      );
+
+
+    try {
+
+      // ==================================================
+      // CHECK SUPPORT
+      // ==================================================
+
+      if (
+        !("Notification" in window)
+      ) {
+
+        status.textContent =
+          "❌ Browser tidak menyokong notifikasi.";
+
+        return;
+
+      }
+
+
+      if (
+        !("serviceWorker" in navigator)
+      ) {
+
+        status.textContent =
+          "❌ Browser tidak menyokong Service Worker.";
+
+        return;
+
+      }
+
+
+      button.disabled =
+        true;
+
+
+      // ==================================================
+      // NOTIFICATION PERMISSION
+      // ==================================================
+
+      status.textContent =
+        "Meminta kebenaran...";
+
+
+      let permission =
+        Notification.permission;
+
+
+      console.log(
+        "Notification permission:",
+        permission
+      );
+
+
+      if (
+        permission !== "granted"
+      ) {
+
+        permission =
+          await Notification.requestPermission();
+
+      }
+
+
+      if (
+        permission !== "granted"
+      ) {
+
+        status.textContent =
+          "⚠️ Kebenaran notifikasi tidak diberikan.";
+
+        button.disabled =
+          false;
+
+        return;
+
+      }
+
+
+      // ==================================================
+      // SERVICE WORKER
+      // ==================================================
+
+      status.textContent =
+        "Menyediakan Service Worker...";
+
+
+      const registration =
+        await getDelimaServiceWorker();
+
+
+      console.log(
+        "5️⃣ Service Worker obtained:",
+        registration
+      );
+
+
+      // ==================================================
+      // FIREBASE TOKEN
+      // ==================================================
+
+      status.textContent =
+        "Mendapatkan token Firebase...";
+
+
+      console.log(
+        "6️⃣ Requesting FCM token..."
+      );
+
+
+      const token =
+        await getToken(
+          messaging,
+          {
+
+            vapidKey:
+              VAPID_KEY,
+
+            serviceWorkerRegistration:
+              registration
+
+          }
+        );
+
+
+      console.log(
+        "7️⃣ FCM TOKEN:",
+        token
+      );
+
+
+      if (!token) {
+
+        throw new Error(
+          "FCM token tidak diterima."
+        );
+
+      }
+
+
+      // ==================================================
+      // REGISTER TOKEN KE APPS SCRIPT
+      // ==================================================
+
+      status.textContent =
+        "Mendaftarkan peranti...";
+
+
+      console.log(
+        "8️⃣ Sending token to Apps Script..."
+      );
+
+
+      const data =
+        await apiRequest(
+          "registerPushToken",
+          {
+
+            token:
+              token,
+
+            role:
+              "ADMIN",
+
+            deviceId:
+              getDeviceId(),
+
+            platform:
+              getPlatform()
+
+          }
+        );
+
+
+      console.log(
+        "9️⃣ registerPushToken response:",
+        data
+      );
+
+
+      if (
+        !data ||
+        !data.success
+      ) {
+
+        throw new Error(
+          data?.message ||
+          "Token gagal disimpan."
+        );
+
+      }
+
+
+      // ==================================================
+      // SAVE TOKEN
+      // ==================================================
+
+      localStorage.setItem(
+        "delimaAdminFcmToken",
+        token
+      );
+
+
+      button.textContent =
+        "🔔 Notifikasi Aktif";
+
+      /*
+       * Jangan disable secara kekal.
+       * Kalau row PUSH_TOKENS terpadam,
+       * Admin boleh tekan lagi untuk
+       * mendaftarkan semula token.
+       */
+
+      button.disabled =
+        false;
+
+
+      status.textContent =
+        "✅ Peranti telah didaftarkan";
+
+
+      console.log(
+        "✅ ADMIN PUSH REGISTERED"
+      );
+
+  }
+
+
+  catch (error) {
+
+    console.error(
+      "❌ Admin Notification Error:",
+      error
+    );
+
+
+    status.textContent =
+      "❌ " +
+      (
+        error?.message ||
+        "Gagal mengaktifkan notifikasi."
+      );
+
+
+    button.disabled =
+      false;
+
+  }
+
+};
+
+
+// ======================================================
+// RESTORE NOTIFICATION STATUS
+// ======================================================
+
+function restoreNotificationStatus() {
+
+  const button =
+    document.getElementById(
+      "enableNotificationBtn"
+    );
+
+  const status =
+    document.getElementById(
+      "notificationStatus"
+    );
+
+
+  if (
+    !button ||
+    !status
+  ) {
+
+    return;
+
+  }
+
+
+  const savedToken =
+    localStorage.getItem(
+      "delimaAdminFcmToken"
+    );
+
+
+  if (
+    Notification.permission ===
+      "granted" &&
+    savedToken
+  ) {
+
+    button.textContent =
+      "🔄 Daftar Semula Notifikasi";
+
+    /*
+     * Sengaja tidak disable.
+     *
+     * Ini membolehkan Admin daftar
+     * semula sekiranya token dalam
+     * Google Sheet telah terpadam.
+     */
+
+    button.disabled =
+      false;
+
+
+    status.textContent =
+      "✅ Notifikasi dibenarkan";
+
+  }
+
+  else {
+
+    button.textContent =
+      "🔔 Aktifkan Notifikasi";
+
+    button.disabled =
+      false;
+
+    status.textContent =
+      "";
+
+  }
+
+}
+
+
+// ======================================================
+// INITIAL SERVICE WORKER CHECK
+// ======================================================
+
+async function initializeAdminNotification() {
+
+  try {
+
+    if (
+      "serviceWorker" in navigator
+    ) {
+
+      const registration =
+        await navigator.serviceWorker.register(
+          "./service-worker.js",
+          {
+            scope: "./"
+          }
+        );
+
+
+      console.log(
+        "🔥 Admin Service Worker:",
+        registration.scope
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Admin SW initialization:",
+      error
+    );
+
+  }
+
+
+  restoreNotificationStatus();
+
+}
+
+
+// ======================================================
+// START
+// ======================================================
+
+initializeAdminNotification();
+
+</script>
+
+</body>
+</html>
