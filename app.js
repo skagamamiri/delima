@@ -1099,11 +1099,10 @@ helpFormButton.onclick =
 contact.appendChild(
   helpFormButton
 );
-    }
 
 
-    // =====================================
-    // EMAIL
+// =====================================
+// EMAIL
     // =====================================
 
     if (help.email) {
@@ -3043,5 +3042,107 @@ function openICTHelpForm() {
     }
   );
 
+
+}
+
+
+// ======================================================
+// SUBMIT BORANG PERMOHONAN BANTUAN ICT
+// ======================================================
+
+async function submitICTHelpForm() {
+
+  const message =
+    document.getElementById(
+      "ictHelpFormMessage"
+    );
+
+  const nama =
+    document.getElementById(
+      "helpStudentName"
+    ).value.trim();
+
+  const kelas =
+    document.getElementById(
+      "helpStudentClass"
+    ).value.trim();
+
+  const phone =
+    document.getElementById(
+      "helpPhone"
+    ).value.trim();
+
+  const problem =
+    document.getElementById(
+      "helpProblem"
+    ).value;
+
+  const description =
+    document.getElementById(
+      "helpProblemDescription"
+    ).value.trim();
+
+
+  if (
+    !nama ||
+    !kelas ||
+    !phone ||
+    !problem
+  ) {
+
+    if (message) {
+
+      message.style.display = "block";
+      message.style.background = "#fff4e5";
+      message.style.color = "#8a5200";
+
+      message.textContent =
+        "⚠️ Sila lengkapkan semua maklumat wajib.";
+
+    }
+
+    return;
+
+  }
+
+
+  // Paparan berjaya sementara.
+  // Sambungan Google Apps Script boleh dibuat
+  // selepas endpoint borang disahkan.
+
+  if (message) {
+
+    message.style.display = "block";
+    message.style.background = "#eaf8f0";
+    message.style.color = "#176b42";
+
+    message.textContent =
+      "✅ Permohonan bantuan telah diterima.";
+
+  }
+
+
+  console.log(
+    "📋 Permohonan Bantuan ICT:",
+    {
+      nama: nama,
+      kelas: kelas,
+      phone: phone,
+      problem: problem,
+      description: description
+    }
+  );
+
+
+  const form =
+    document.getElementById(
+      "ictHelpForm"
+    );
+
+  if (form) {
+
+    form.reset();
+
+  }
 
 }
