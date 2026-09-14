@@ -1078,7 +1078,7 @@ async function loadHelp() {
 
 
     document
-      .getElementById("helpWhatsapp")
+      .getElementById("helpPhone")
       .value =
         help.whatsapp || "";
 
@@ -1149,7 +1149,7 @@ async function saveHelp() {
 
     whatsapp:
       document
-        .getElementById("helpWhatsapp")
+        .getElementById("helpPhone")
         .value
         .replace(/\D/g, ""),
 
@@ -1327,17 +1327,17 @@ function renderActiveICTRequest(request) {
 
   const replyInput = document.getElementById("ictReplyInput");
   if (replyInput && document.activeElement !== replyInput) replyInput.value = "";
-  const result = document.getElementById("ictWhatsAppResult");
+  const result = document.getElementById("ictEmailResult");
   if (result) {
     const emailStatus = String(request.emailStatus || "PENDING").toUpperCase();
     if (emailStatus === "SENT") {
-      result.className = "ict-whatsapp-result success";
+      result.className = "ict-email-result success";
       result.textContent = "📧 Email berjaya dihantar kepada ibu bapa/penjaga.";
     } else if (emailStatus === "FAILED") {
-      result.className = "ict-whatsapp-result error";
+      result.className = "ict-email-result error";
       result.textContent = "⚠️ Email gagal dihantar. " + (request.emailError || "Semak alamat email dan kebenaran MailApp.");
     } else {
-      result.className = "ict-whatsapp-result";
+      result.className = "ict-email-result";
       result.textContent = "Email belum dihantar.";
     }
   }
@@ -1358,28 +1358,28 @@ async function replySelectedICTRequest() {
   const request = adminICTRequests.find(r => String(r.requestId) === String(activeICTRequestId));
   const input = document.getElementById("ictReplyInput");
   const button = document.getElementById("ictReplyBtn");
-  const result = document.getElementById("ictWhatsAppResult");
+  const result = document.getElementById("ictEmailResult");
   if (!request || !input) { alert("Sila pilih permohonan ICT dahulu."); return; }
   const reply = input.value.trim();
   if (!reply) { alert("Sila masukkan balasan terlebih dahulu."); input.focus(); return; }
   if (!request.email) { alert("Permohonan ini tiada email ibu bapa. Minta ibu bapa hantar permohonan baharu dengan email."); return; }
   if (!confirm("Hantar balasan ini ke email " + request.email + "?")) return;
   if (button) { button.disabled = true; button.textContent = "📧 Menghantar..."; }
-  if (result) { result.className = "ict-whatsapp-result"; result.textContent = "Sedang menyimpan balasan dan menghantar email..."; }
+  if (result) { result.className = "ict-email-result"; result.textContent = "Sedang menyimpan balasan dan menghantar email..."; }
 
   try {
     const data = await apiRequest("replyICTRequest", { requestId: request.requestId, reply: reply, admin: "Admin ICT" });
     if (!data.success) { handleApiFailure(data); throw new Error(data.message || "Balasan gagal dihantar."); }
     if (data.emailSent) {
-      if (result) { result.className = "ict-whatsapp-result success"; result.textContent = "✅ Balasan disimpan dan email berjaya dihantar kepada ibu bapa/penjaga."; }
+      if (result) { result.className = "ict-email-result success"; result.textContent = "✅ Balasan disimpan dan email berjaya dihantar kepada ibu bapa/penjaga."; }
     } else {
-      if (result) { result.className = "ict-whatsapp-result error"; result.textContent = "⚠️ Balasan disimpan, tetapi email gagal dihantar. " + (data.emailError || "Semak konfigurasi email."); }
+      if (result) { result.className = "ict-email-result error"; result.textContent = "⚠️ Balasan disimpan, tetapi email gagal dihantar. " + (data.emailError || "Semak konfigurasi email."); }
     }
     input.value = "";
     await loadAdminICTRequests();
   } catch (error) {
     console.error("Reply ICT request:", error);
-    if (result) { result.className = "ict-whatsapp-result error"; result.textContent = "❌ " + (error.message || "Ralat semasa menghantar balasan."); }
+    if (result) { result.className = "ict-email-result error"; result.textContent = "❌ " + (error.message || "Ralat semasa menghantar balasan."); }
   } finally {
     if (button) { button.disabled = false; button.textContent = "📧 Hantar ke Email Ibu Bapa"; }
   }

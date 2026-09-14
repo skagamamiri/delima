@@ -2903,7 +2903,7 @@ function openICTHelpForm() {
         <div class="ict-form-group">
 
           <label>
-            No. Telefon WhatsApp
+            No. Telefon WhatsApp (Pilihan)
           </label>
 
           <input
@@ -2914,7 +2914,7 @@ function openICTHelpForm() {
             >
 
           <small>
-            Pilihan. Boleh dikosongkan jika tidak diperlukan.
+            Pilihan. Boleh dikosongkan jika tidak diperlukan untuk urusan susulan.
           </small>
 
         </div>
@@ -3180,7 +3180,7 @@ async function submitICTHelpForm() {
     showFormMessage(
       "✅ Permohonan berjaya dihantar.\n\n" +
       "No. rujukan: " + data.requestId +
-      "\n\nAdmin ICT akan menghubungi anda melalui WhatsApp.",
+      "\n\nAdmin ICT akan membalas melalui email ibu bapa/penjaga.",
       "success"
     );
 
