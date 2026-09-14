@@ -205,7 +205,7 @@ self.addEventListener(
 // ======================================================
 
 const CACHE_NAME =
-  "skamdelima-admin-v3";
+  "skamdelima-admin-v4";
 
 
 const BASE =
