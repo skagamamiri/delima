@@ -562,11 +562,11 @@
 
 
           <label>
-            No. WhatsApp
+            No. Telefon WhatsApp (Pilihan)
           </label>
 
           <input
-            id="helpWhatsapp"
+            id="helpPhone"
             type="tel"
             inputmode="numeric"
             placeholder="Contoh: 60123456789">
@@ -617,7 +617,7 @@
         <div class="panel-header">
           <div>
             <h2>🆘 Permohonan Bantuan ICT</h2>
-            <p>Semak masalah murid, balas dan hantar jawapan terus ke WhatsApp.</p>
+            <p>Semak masalah murid, balas dan hantar jawapan terus ke email ibu bapa/penjaga.</p>
           </div>
           <button class="secondary-btn" type="button" onclick="loadAdminICTRequests(true)">↻ Refresh</button>
         </div>
@@ -674,10 +674,10 @@
                   <label for="ictReplyInput">Balasan Admin ICT</label>
                   <textarea id="ictReplyInput" rows="5" maxlength="4000" placeholder="Taip balasan kepada murid..."></textarea>
                   <div class="ict-reply-actions">
-                    <button id="ictReplyBtn" type="button" class="primary-small" onclick="replySelectedICTRequest()">📲 Hantar ke WhatsApp</button>
+                    <button id="ictReplyBtn" type="button" class="primary-small" onclick="replySelectedICTRequest()">📧 Hantar ke Email Ibu Bapa</button>
                     <button id="ictCloseBtn" type="button" class="secondary-btn" onclick="closeSelectedICTRequest()">✅ Tanda Selesai</button>
                   </div>
-                  <div id="ictWhatsAppResult" class="ict-whatsapp-result"></div>
+                  <div id="ictEmailResult" class="ict-email-result"></div>
                 </div>
 
                 <div id="activeICTPreviousReply" class="ict-previous-reply hidden">
