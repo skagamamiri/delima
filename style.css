@@ -4423,3 +4423,371 @@ main {
 #chatButton.chat-float {
   display: none !important;
 }
+
+/* ======================================================
+   BORANG BANTUAN ICT
+====================================================== */
+
+.ict-help-form-button {
+
+  width: 100%;
+
+  min-height: 52px;
+
+  margin-top: 6px;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0b5fa5,
+      #123b72
+    );
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 18px
+    rgba(11, 50, 100, .15);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease;
+}
+
+
+.ict-help-form-button:hover {
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 9px 24px
+    rgba(11, 50, 100, .20);
+
+}
+
+
+.ict-help-form-button:active {
+
+  transform:
+    scale(.98);
+
+}
+
+
+/* ======================================================
+   MODAL
+====================================================== */
+
+.ict-help-modal {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 99999;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 18px;
+
+  background:
+    rgba(5, 25, 50, .58);
+
+  backdrop-filter:
+    blur(5px);
+
+}
+
+
+.ict-help-modal-box {
+
+  width: min(
+    520px,
+    100%
+  );
+
+  max-height: 92vh;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  border-radius: 22px;
+
+  box-shadow:
+    0 25px 70px
+    rgba(0,0,0,.25);
+
+}
+
+
+/* HEADER */
+
+.ict-help-modal-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0b3264,
+      #1768a8
+    );
+
+  color: white;
+
+  border-radius:
+    22px 22px 0 0;
+
+}
+
+
+.ict-help-modal-header > div {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+}
+
+
+.ict-help-modal-header strong {
+
+  font-size: 19px;
+
+}
+
+
+.ict-help-modal-header span {
+
+  font-size: 12px;
+
+  opacity: .85;
+
+}
+
+
+#closeICTHelpForm {
+
+  width: 40px;
+
+  height: 40px;
+
+  flex: 0 0 40px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background:
+    rgba(255,255,255,.15);
+
+  color: white;
+
+  font-size: 27px;
+
+  cursor: pointer;
+
+}
+
+
+/* FORM */
+
+#ictHelpForm {
+
+  padding: 20px;
+
+}
+
+
+.ict-form-group {
+
+  margin-bottom: 16px;
+
+}
+
+
+.ict-form-group label {
+
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #123b6d;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+}
+
+
+.ict-form-group input,
+.ict-form-group select,
+.ict-form-group textarea {
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 13px 14px;
+
+  border: 1px solid #d7e2ef;
+
+  border-radius: 12px;
+
+  background: #f9fbfd;
+
+  color: #1f2937;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  outline: none;
+
+}
+
+
+.ict-form-group input:focus,
+.ict-form-group select:focus,
+.ict-form-group textarea:focus {
+
+  border-color: #3280c2;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(50,128,194,.10);
+
+}
+
+
+.ict-form-group textarea {
+
+  resize: vertical;
+
+  min-height: 100px;
+
+}
+
+
+.ict-form-group small {
+
+  display: block;
+
+  margin-top: 5px;
+
+  color: #7b8794;
+
+  font-size: 11px;
+
+}
+
+
+/* SUBMIT */
+
+.ict-help-submit {
+
+  width: 100%;
+
+  min-height: 52px;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0b8f5a,
+      #159455
+    );
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 15px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+}
+
+
+.ict-help-form-message {
+
+  display: none;
+
+  margin-bottom: 14px;
+
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+}
+
+
+@media (max-width: 600px) {
+
+  .ict-help-modal {
+
+    align-items: flex-end;
+
+    padding: 0;
+
+  }
+
+
+  .ict-help-modal-box {
+
+    max-height: 94vh;
+
+    border-radius:
+      22px 22px 0 0;
+
+  }
+
+
+  .ict-help-modal-header {
+
+    border-radius:
+      22px 22px 0 0;
+
+  }
+
+}
