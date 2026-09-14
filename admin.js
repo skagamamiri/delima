@@ -15,6 +15,14 @@ let activeAdminChatId = "";
 let adminChatTimer = null;
 
 // ======================================
+// PERMOHONAN BANTUAN ICT
+// ======================================
+let adminICTRequests = [];
+let activeICTRequestId = "";
+let activeICTFilter = "ALL";
+let adminICTTimer = null;
+
+// ======================================
 // LOGIN
 // ======================================
 
@@ -148,6 +156,7 @@ function showAdminSection(section) {
   "students",
   "tutorial",
   "help",
+  "ictRequests",
   "chat"
 ];
 
@@ -206,6 +215,13 @@ function showAdminSection(section) {
     loadHelp();
   }
   
+ if (section === "ictRequests") {
+  loadAdminICTRequests();
+  startAdminICTPolling();
+} else {
+  stopAdminICTPolling();
+}
+
  if (section === "chat") {
 
   loadAdminChats();
@@ -1207,6 +1223,210 @@ async function saveHelp() {
 }
 
 // ======================================
+// PERMOHONAN BANTUAN ICT - LOAD
+// ======================================
+
+async function loadAdminICTRequests(showLoading = false) {
+  const list = document.getElementById("ictRequestList");
+  const count = document.getElementById("ictRequestCount");
+  const message = document.getElementById("ictRequestMessage");
+  if (!list) return;
+  if (showLoading || !adminICTRequests.length) list.innerHTML = '<div class="ict-empty">Sedang memuatkan permohonan...</div>';
+
+  try {
+    const data = await apiRequest("getAdminICTRequests");
+    if (!data.success) {
+      handleApiFailure(data);
+      list.innerHTML = '<div class="ict-empty">' + escapeHTML(data.message || "Tidak dapat memuatkan permohonan.") + '</div>';
+      return;
+    }
+    adminICTRequests = Array.isArray(data.requests) ? data.requests : [];
+    if (count) count.textContent = adminICTRequests.length;
+    updateICTRequestBadge();
+    renderICTRequestList();
+    if (activeICTRequestId) {
+      const active = adminICTRequests.find(r => String(r.requestId) === String(activeICTRequestId));
+      if (active) renderActiveICTRequest(active);
+    }
+    if (message && showLoading) message.innerHTML = "";
+  } catch (error) {
+    console.error("Load ICT requests error:", error);
+    list.innerHTML = '<div class="ict-empty">Ralat memuatkan permohonan ICT.</div>';
+  }
+}
+
+function filterICTRequests(filter) {
+  activeICTFilter = String(filter || "ALL").toUpperCase();
+  document.querySelectorAll(".ict-filter").forEach(btn => btn.classList.toggle("active", String(btn.dataset.filter || "") === activeICTFilter));
+  renderICTRequestList();
+}
+
+function renderICTRequestList() {
+  const list = document.getElementById("ictRequestList");
+  if (!list) return;
+  const filtered = adminICTRequests.filter(request => activeICTFilter === "ALL" || String(request.status || "BARU").toUpperCase() === activeICTFilter);
+  list.innerHTML = "";
+  if (!filtered.length) {
+    list.innerHTML = '<div class="ict-empty">Tiada permohonan dalam kategori ini.</div>';
+    return;
+  }
+  filtered.forEach(request => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "ict-request-item" + (String(request.requestId) === String(activeICTRequestId) ? " active" : "");
+    const status = String(request.status || "BARU").toUpperCase();
+    const wa = String(request.whatsappStatus || "PENDING").toUpperCase();
+    button.innerHTML =
+      '<div class="ict-request-item-top"><strong>👤 ' + escapeHTML(request.nama || "Murid") + '</strong>' +
+      '<span class="ict-status-badge ' + ictStatusClass(status) + '">' + escapeHTML(status) + '</span></div>' +
+      '<small>' + escapeHTML(request.kelas || "") + ' • ' + escapeHTML(formatICTDate(request.createdAt)) + '</small>' +
+      '<p>' + escapeHTML(request.problem || "Masalah ICT") + '</p>' +
+      '<span class="ict-wa-mini ' + (wa === "SENT" ? "sent" : wa === "FAILED" ? "failed" : "pending") + '">WhatsApp: ' + escapeHTML(wa) + '</span>';
+    button.onclick = () => openAdminICTRequest(request.requestId);
+    list.appendChild(button);
+  });
+}
+
+function updateICTRequestBadge() {
+  const badge = document.getElementById("ictRequestBadge");
+  if (!badge) return;
+  const count = adminICTRequests.filter(r => String(r.status || "BARU").toUpperCase() === "BARU").length;
+  badge.textContent = count;
+  badge.classList.toggle("hidden", count === 0);
+}
+
+function openAdminICTRequest(requestId) {
+  const request = adminICTRequests.find(r => String(r.requestId) === String(requestId));
+  if (!request) return;
+  activeICTRequestId = String(requestId);
+  renderICTRequestList();
+  renderActiveICTRequest(request);
+}
+
+function renderActiveICTRequest(request) {
+  const empty = document.getElementById("ictRequestEmpty");
+  const active = document.getElementById("ictRequestActive");
+  if (!active) return;
+  if (empty) empty.classList.add("hidden");
+  active.classList.remove("hidden");
+  setText("activeICTName", request.nama || "Murid");
+  setText("activeICTMeta", request.kelas || "-");
+  setText("activeICTId", request.requestId || "-");
+  setText("activeICTPhone", request.whatsapp || "-");
+  setText("activeICTDate", formatICTDate(request.createdAt));
+  setText("activeICTProblem", request.problem || "-");
+  setText("activeICTDescription", request.description || "Tiada penerangan.");
+
+  const statusEl = document.getElementById("activeICTStatus");
+  if (statusEl) {
+    const status = String(request.status || "BARU").toUpperCase();
+    statusEl.textContent = status;
+    statusEl.className = "ict-status-badge " + ictStatusClass(status);
+  }
+
+  const replyInput = document.getElementById("ictReplyInput");
+  if (replyInput && document.activeElement !== replyInput) replyInput.value = "";
+  const result = document.getElementById("ictWhatsAppResult");
+  if (result) {
+    const wa = String(request.whatsappStatus || "PENDING").toUpperCase();
+    if (wa === "SENT") {
+      result.className = "ict-whatsapp-result success";
+      result.textContent = "📲 WhatsApp berjaya dihantar.";
+    } else if (wa === "FAILED") {
+      result.className = "ict-whatsapp-result error";
+      result.textContent = "⚠️ WhatsApp gagal dihantar. " + (request.whatsappError || "Semak konfigurasi WhatsApp Cloud API.");
+    } else {
+      result.className = "ict-whatsapp-result";
+      result.textContent = "WhatsApp belum dihantar.";
+    }
+  }
+
+  const previous = document.getElementById("activeICTPreviousReply");
+  if (previous) {
+    if (request.adminReply) {
+      previous.classList.remove("hidden");
+      setText("activeICTPreviousReplyText", request.adminReply);
+      setText("activeICTPreviousReplyMeta", (request.admin || "Admin ICT") + (request.repliedAt ? " • " + formatICTDate(request.repliedAt) : ""));
+    } else previous.classList.add("hidden");
+  }
+  const closeBtn = document.getElementById("ictCloseBtn");
+  if (closeBtn) closeBtn.disabled = String(request.status || "BARU").toUpperCase() === "SELESAI";
+}
+
+async function replySelectedICTRequest() {
+  const request = adminICTRequests.find(r => String(r.requestId) === String(activeICTRequestId));
+  const input = document.getElementById("ictReplyInput");
+  const button = document.getElementById("ictReplyBtn");
+  const result = document.getElementById("ictWhatsAppResult");
+  if (!request || !input) { alert("Sila pilih permohonan ICT dahulu."); return; }
+  const reply = input.value.trim();
+  if (!reply) { alert("Sila masukkan balasan terlebih dahulu."); input.focus(); return; }
+  if (!confirm("Hantar balasan ini ke WhatsApp " + (request.whatsapp || "murid") + "?")) return;
+  if (button) { button.disabled = true; button.textContent = "📲 Menghantar..."; }
+  if (result) { result.className = "ict-whatsapp-result"; result.textContent = "Sedang menyimpan balasan dan menghantar ke WhatsApp..."; }
+
+  try {
+    const data = await apiRequest("replyICTRequest", { requestId: request.requestId, reply: reply, admin: "Admin ICT" });
+    if (!data.success) { handleApiFailure(data); throw new Error(data.message || "Balasan gagal dihantar."); }
+    if (data.whatsappSent) {
+      if (result) { result.className = "ict-whatsapp-result success"; result.textContent = "✅ Balasan disimpan dan WhatsApp berjaya dihantar."; }
+    } else if (result) {
+      result.className = "ict-whatsapp-result error";
+      result.textContent = "⚠️ Balasan disimpan, tetapi WhatsApp gagal dihantar. Semak konfigurasi WhatsApp Cloud API.";
+    }
+    input.value = "";
+    await loadAdminICTRequests();
+  } catch (error) {
+    console.error("Reply ICT request:", error);
+    if (result) { result.className = "ict-whatsapp-result error"; result.textContent = "❌ " + (error.message || "Ralat semasa menghantar balasan."); }
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "📲 Hantar ke WhatsApp"; }
+  }
+}
+
+async function closeSelectedICTRequest() {
+  const request = adminICTRequests.find(r => String(r.requestId) === String(activeICTRequestId));
+  if (!request) { alert("Sila pilih permohonan ICT dahulu."); return; }
+  if (String(request.status || "").toUpperCase() === "SELESAI") return;
+  if (!confirm("Tandakan permohonan " + request.requestId + " sebagai SELESAI?")) return;
+  const button = document.getElementById("ictCloseBtn");
+  if (button) { button.disabled = true; button.textContent = "Menyimpan..."; }
+  try {
+    const data = await apiRequest("closeICTRequest", { requestId: request.requestId });
+    if (!data.success) { handleApiFailure(data); throw new Error(data.message || "Tidak dapat menutup permohonan."); }
+    await loadAdminICTRequests();
+  } catch (error) {
+    console.error("Close ICT request:", error);
+    alert(error.message || "Ralat semasa menutup permohonan.");
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "✅ Tanda Selesai"; }
+  }
+}
+
+function startAdminICTPolling() {
+  stopAdminICTPolling();
+  adminICTTimer = setInterval(async function() {
+    if (!sessionToken) return;
+    const section = document.getElementById("ictRequestsSection");
+    if (!section || section.classList.contains("hidden")) return;
+    try { await loadAdminICTRequests(); } catch (error) { console.error("ICT request polling:", error); }
+  }, 10000);
+}
+
+function stopAdminICTPolling() {
+  if (adminICTTimer) { clearInterval(adminICTTimer); adminICTTimer = null; }
+}
+
+function ictStatusClass(status) { return String(status || "BARU").toLowerCase().replace(/[^a-z]/g, ""); }
+function formatICTDate(value) {
+  if (!value) return "-";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString("ms-MY", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" });
+}
+function setText(id, value) { const el = document.getElementById(id); if (el) el.textContent = String(value ?? ""); }
+
+// ======================================
 // LIVE CHAT - LOAD CONVERSATIONS
 // ======================================
 
@@ -2006,6 +2226,7 @@ function handleApiFailure(data) {
 function logoutAdmin() {
 
   sessionToken = "";
+  stopAdminICTPolling();
 
   sessionStorage.removeItem(
     "delimaAdminToken"
