@@ -2875,6 +2875,29 @@ function openICTHelpForm() {
 
 
 
+        <!-- EMAIL IBU BAPA -->
+
+        <div class="ict-form-group">
+
+          <label>
+            Email Ibu Bapa / Penjaga
+          </label>
+
+          <input
+            type="email"
+            id="helpParentEmail"
+            placeholder="Contoh: ibu@example.com"
+            autocomplete="email"
+            required>
+
+          <small>
+            Balasan Admin ICT akan dihantar terus ke email ini.
+          </small>
+
+        </div>
+
+
+
         <!-- TELEFON -->
 
         <div class="ict-form-group">
@@ -2888,10 +2911,10 @@ function openICTHelpForm() {
             id="helpPhone"
             inputmode="tel"
             placeholder="Contoh: 0123456789"
-            required>
+            >
 
           <small>
-            Pastikan nombor ini mempunyai WhatsApp.
+            Pilihan. Boleh dikosongkan jika tidak diperlukan.
           </small>
 
         </div>
@@ -3061,6 +3084,9 @@ async function submitICTHelpForm() {
   const phone =
     document.getElementById("helpPhone")?.value.trim() || "";
 
+  const email =
+    document.getElementById("helpParentEmail")?.value.trim() || "";
+
   const problem =
     document.getElementById("helpProblem")?.value || "";
 
@@ -3083,7 +3109,7 @@ async function submitICTHelpForm() {
     message.textContent = text;
   }
 
-  if (!nama || !kelas || !phone || !problem) {
+  if (!nama || !kelas || !email || !problem) {
     showFormMessage(
       "⚠️ Sila lengkapkan semua maklumat wajib.",
       "warning"
@@ -3091,14 +3117,25 @@ async function submitICTHelpForm() {
     return;
   }
 
-  const digits = phone.replace(/\D/g, "");
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (digits.length < 9 || digits.length > 15) {
+  if (!emailPattern.test(email)) {
     showFormMessage(
-      "⚠️ Sila masukkan nombor telefon yang sah.",
+      "⚠️ Sila masukkan alamat email ibu bapa yang sah.",
       "warning"
     );
     return;
+  }
+
+  if (phone) {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 9 || digits.length > 15) {
+      showFormMessage(
+        "⚠️ Sila masukkan nombor telefon yang sah atau kosongkan ruangan tersebut.",
+        "warning"
+      );
+      return;
+    }
   }
 
   if (submitButton) {
@@ -3113,6 +3150,7 @@ async function submitICTHelpForm() {
     params.set("nama", nama);
     params.set("kelas", kelas);
     params.set("phone", phone);
+    params.set("email", email);
     params.set("problem", problem);
     params.set("description", description);
     params.set("t", Date.now());

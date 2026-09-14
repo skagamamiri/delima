@@ -152,35 +152,53 @@ function showDashboard() {
 
 function showAdminSection(section) {
 
-  // ID tab tidak boleh dibina secara automatik kerana
-  // "ictRequests" menggunakan id tabICTRequests (ICT huruf besar).
-  const sectionConfig = {
-    students: { sectionId: "studentsSection", tabId: "tabStudents" },
-    tutorial: { sectionId: "tutorialSection", tabId: "tabTutorial" },
-    help: { sectionId: "helpSection", tabId: "tabHelp" },
-    ictRequests: { sectionId: "ictRequestsSection", tabId: "tabICTRequests" },
-    chat: { sectionId: "chatSection", tabId: "tabChat" }
-  };
+  const sections = [
+  "students",
+  "tutorial",
+  "help",
+  "ictRequests",
+  "chat"
+];
 
-  Object.values(sectionConfig).forEach(function (cfg) {
-    const sectionEl = document.getElementById(cfg.sectionId);
-    const tabEl = document.getElementById(cfg.tabId);
 
-    if (sectionEl) sectionEl.classList.add("hidden");
-    if (tabEl) tabEl.classList.remove("active");
+  sections.forEach(name => {
+
+    document
+      .getElementById(
+        name + "Section"
+      )
+      .classList
+      .add("hidden");
+
+
+    document
+      .getElementById(
+        "tab" +
+        name.charAt(0).toUpperCase() +
+        name.slice(1)
+      )
+      .classList
+      .remove("active");
+
   });
 
-  const selected = sectionConfig[section];
-  if (!selected) {
-    console.error("Admin section tidak dikenali:", section);
-    return;
-  }
 
-  const selectedSection = document.getElementById(selected.sectionId);
-  const selectedTab = document.getElementById(selected.tabId);
+  document
+    .getElementById(
+      section + "Section"
+    )
+    .classList
+    .remove("hidden");
 
-  if (selectedSection) selectedSection.classList.remove("hidden");
-  if (selectedTab) selectedTab.classList.add("active");
+
+  document
+    .getElementById(
+      "tab" +
+      section.charAt(0).toUpperCase() +
+      section.slice(1)
+    )
+    .classList
+    .add("active");
 
 
   if (section === "students") {
@@ -1257,13 +1275,13 @@ function renderICTRequestList() {
     button.type = "button";
     button.className = "ict-request-item" + (String(request.requestId) === String(activeICTRequestId) ? " active" : "");
     const status = String(request.status || "BARU").toUpperCase();
-    const wa = String(request.whatsappStatus || "PENDING").toUpperCase();
+    const wa = String(request.emailStatus || "PENDING").toUpperCase();
     button.innerHTML =
       '<div class="ict-request-item-top"><strong>👤 ' + escapeHTML(request.nama || "Murid") + '</strong>' +
       '<span class="ict-status-badge ' + ictStatusClass(status) + '">' + escapeHTML(status) + '</span></div>' +
       '<small>' + escapeHTML(request.kelas || "") + ' • ' + escapeHTML(formatICTDate(request.createdAt)) + '</small>' +
       '<p>' + escapeHTML(request.problem || "Masalah ICT") + '</p>' +
-      '<span class="ict-wa-mini ' + (wa === "SENT" ? "sent" : wa === "FAILED" ? "failed" : "pending") + '">WhatsApp: ' + escapeHTML(wa) + '</span>';
+      '<span class="ict-wa-mini ' + (wa === "SENT" ? "sent" : wa === "FAILED" ? "failed" : "pending") + '">Email: ' + escapeHTML(wa) + '</span>';
     button.onclick = () => openAdminICTRequest(request.requestId);
     list.appendChild(button);
   });
@@ -1295,6 +1313,7 @@ function renderActiveICTRequest(request) {
   setText("activeICTMeta", request.kelas || "-");
   setText("activeICTId", request.requestId || "-");
   setText("activeICTPhone", request.whatsapp || "-");
+  setText("activeICTEmail", request.email || "-");
   setText("activeICTDate", formatICTDate(request.createdAt));
   setText("activeICTProblem", request.problem || "-");
   setText("activeICTDescription", request.description || "Tiada penerangan.");
@@ -1310,16 +1329,16 @@ function renderActiveICTRequest(request) {
   if (replyInput && document.activeElement !== replyInput) replyInput.value = "";
   const result = document.getElementById("ictWhatsAppResult");
   if (result) {
-    const wa = String(request.whatsappStatus || "PENDING").toUpperCase();
-    if (wa === "SENT") {
+    const emailStatus = String(request.emailStatus || "PENDING").toUpperCase();
+    if (emailStatus === "SENT") {
       result.className = "ict-whatsapp-result success";
-      result.textContent = "📲 WhatsApp berjaya dihantar.";
-    } else if (wa === "FAILED") {
+      result.textContent = "📧 Email berjaya dihantar kepada ibu bapa/penjaga.";
+    } else if (emailStatus === "FAILED") {
       result.className = "ict-whatsapp-result error";
-      result.textContent = "⚠️ WhatsApp gagal dihantar. " + (request.whatsappError || "Semak konfigurasi WhatsApp Cloud API.");
+      result.textContent = "⚠️ Email gagal dihantar. " + (request.emailError || "Semak alamat email dan kebenaran MailApp.");
     } else {
       result.className = "ict-whatsapp-result";
-      result.textContent = "WhatsApp belum dihantar.";
+      result.textContent = "Email belum dihantar.";
     }
   }
 
@@ -1343,18 +1362,18 @@ async function replySelectedICTRequest() {
   if (!request || !input) { alert("Sila pilih permohonan ICT dahulu."); return; }
   const reply = input.value.trim();
   if (!reply) { alert("Sila masukkan balasan terlebih dahulu."); input.focus(); return; }
-  if (!confirm("Hantar balasan ini ke WhatsApp " + (request.whatsapp || "murid") + "?")) return;
-  if (button) { button.disabled = true; button.textContent = "📲 Menghantar..."; }
-  if (result) { result.className = "ict-whatsapp-result"; result.textContent = "Sedang menyimpan balasan dan menghantar ke WhatsApp..."; }
+  if (!request.email) { alert("Permohonan ini tiada email ibu bapa. Minta ibu bapa hantar permohonan baharu dengan email."); return; }
+  if (!confirm("Hantar balasan ini ke email " + request.email + "?")) return;
+  if (button) { button.disabled = true; button.textContent = "📧 Menghantar..."; }
+  if (result) { result.className = "ict-whatsapp-result"; result.textContent = "Sedang menyimpan balasan dan menghantar email..."; }
 
   try {
     const data = await apiRequest("replyICTRequest", { requestId: request.requestId, reply: reply, admin: "Admin ICT" });
     if (!data.success) { handleApiFailure(data); throw new Error(data.message || "Balasan gagal dihantar."); }
-    if (data.whatsappSent) {
-      if (result) { result.className = "ict-whatsapp-result success"; result.textContent = "✅ Balasan disimpan dan WhatsApp berjaya dihantar."; }
-    } else if (result) {
-      result.className = "ict-whatsapp-result error";
-      result.textContent = "⚠️ Balasan disimpan, tetapi WhatsApp gagal dihantar. Semak konfigurasi WhatsApp Cloud API.";
+    if (data.emailSent) {
+      if (result) { result.className = "ict-whatsapp-result success"; result.textContent = "✅ Balasan disimpan dan email berjaya dihantar kepada ibu bapa/penjaga."; }
+    } else {
+      if (result) { result.className = "ict-whatsapp-result error"; result.textContent = "⚠️ Balasan disimpan, tetapi email gagal dihantar. " + (data.emailError || "Semak konfigurasi email."); }
     }
     input.value = "";
     await loadAdminICTRequests();
@@ -1362,7 +1381,7 @@ async function replySelectedICTRequest() {
     console.error("Reply ICT request:", error);
     if (result) { result.className = "ict-whatsapp-result error"; result.textContent = "❌ " + (error.message || "Ralat semasa menghantar balasan."); }
   } finally {
-    if (button) { button.disabled = false; button.textContent = "📲 Hantar ke WhatsApp"; }
+    if (button) { button.disabled = false; button.textContent = "📧 Hantar ke Email Ibu Bapa"; }
   }
 }
 

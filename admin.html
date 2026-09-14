@@ -60,7 +60,7 @@
   <!-- CSS -->
   <link
     rel="stylesheet"
-    href="admin.css?v=29">
+    href="admin.css?v=30">
 
 </head>
 
@@ -553,7 +553,7 @@
 
 
           <label>
-            No. WhatsApp
+            No. Telefon (pilihan)
           </label>
 
           <input
@@ -608,7 +608,7 @@
         <div class="panel-header">
           <div>
             <h2>🆘 Permohonan Bantuan ICT</h2>
-            <p>Semak masalah murid, balas dan hantar jawapan terus ke WhatsApp.</p>
+            <p>Semak masalah murid, balas dan hantar jawapan terus ke email ibu bapa.</p>
           </div>
           <button class="secondary-btn" type="button" onclick="loadAdminICTRequests(true)">↻ Refresh</button>
         </div>
@@ -651,7 +651,8 @@
               <div class="ict-detail-content">
                 <div class="ict-info-grid">
                   <div><small>No. Permohonan</small><strong id="activeICTId">-</strong></div>
-                  <div><small>WhatsApp</small><strong id="activeICTPhone">-</strong></div>
+                  <div><small>Email Ibu Bapa</small><strong id="activeICTEmail">-</strong></div>
+                  <div><small>Telefon</small><strong id="activeICTPhone">-</strong></div>
                   <div><small>Tarikh</small><strong id="activeICTDate">-</strong></div>
                   <div><small>Masalah</small><strong id="activeICTProblem">-</strong></div>
                 </div>
@@ -665,7 +666,7 @@
                   <label for="ictReplyInput">Balasan Admin ICT</label>
                   <textarea id="ictReplyInput" rows="5" maxlength="4000" placeholder="Taip balasan kepada murid..."></textarea>
                   <div class="ict-reply-actions">
-                    <button id="ictReplyBtn" type="button" class="primary-small" onclick="replySelectedICTRequest()">📲 Hantar ke WhatsApp</button>
+                    <button id="ictReplyBtn" type="button" class="primary-small" onclick="replySelectedICTRequest()">📧 Hantar ke Email Ibu Bapa</button>
                     <button id="ictCloseBtn" type="button" class="secondary-btn" onclick="closeSelectedICTRequest()">✅ Tanda Selesai</button>
                   </div>
                   <div id="ictWhatsAppResult" class="ict-whatsapp-result"></div>
@@ -895,7 +896,7 @@
 </div>
 
 
-<script src="admin.js?v=29"></script>
+<script src="admin.js?v=30"></script>
 
  <script type="module">
 
