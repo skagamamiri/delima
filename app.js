@@ -1075,53 +1075,30 @@ async function loadPublicHelp() {
 
 
     // =====================================
-    // WHATSAPP
-    // =====================================
+// BORANG BANTUAN ICT
+// =====================================
 
-    if (help.whatsapp) {
+const helpFormButton =
+  document.createElement("button");
 
-      const number =
-        String(
-          help.whatsapp
-        ).replace(
-          /\D/g,
-          ""
-        );
+helpFormButton.type = "button";
 
+helpFormButton.className =
+  "ict-help-form-button";
 
-      const whatsapp =
-        document.createElement(
-          "a"
-        );
+helpFormButton.innerHTML =
+  "📝 Mohon Bantuan ICT";
 
+helpFormButton.onclick =
+  function () {
 
-      whatsapp.href =
-        "https://wa.me/" +
-        number;
+    openICTHelpForm();
 
+  };
 
-      whatsapp.target =
-        "_blank";
-
-
-      whatsapp.rel =
-        "noopener noreferrer";
-
-
-      whatsapp.textContent =
-        "💬 Hubungi melalui WhatsApp";
-
-
-      styleContactButton(
-        whatsapp,
-        "#159455"
-      );
-
-
-      contact.appendChild(
-        whatsapp
-      );
-
+contact.appendChild(
+  helpFormButton
+);
     }
 
 
@@ -2791,5 +2768,280 @@ if (
 } else {
 
   openChatFromNotification();
+
+}
+
+// ======================================================
+// BORANG PERMOHONAN BANTUAN ICT
+// ======================================================
+
+function openICTHelpForm() {
+
+  // Jangan buat dua modal
+  if (
+    document.getElementById(
+      "ictHelpModal"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  const modal =
+    document.createElement("div");
+
+  modal.id =
+    "ictHelpModal";
+
+  modal.className =
+    "ict-help-modal";
+
+
+  modal.innerHTML = `
+
+    <div class="ict-help-modal-box">
+
+
+      <!-- HEADER -->
+
+      <div class="ict-help-modal-header">
+
+        <div>
+
+          <strong>
+            🆘 Mohon Bantuan ICT
+          </strong>
+
+          <span>
+            Sila lengkapkan maklumat di bawah.
+          </span>
+
+        </div>
+
+
+        <button
+          type="button"
+          id="closeICTHelpForm">
+
+          ×
+
+        </button>
+
+      </div>
+
+
+
+      <!-- FORM -->
+
+      <form
+        id="ictHelpForm">
+
+
+        <!-- NAMA -->
+
+        <div class="ict-form-group">
+
+          <label>
+            Nama Murid
+          </label>
+
+          <input
+            type="text"
+            id="helpStudentName"
+            placeholder="Masukkan nama murid"
+            autocomplete="name"
+            required>
+
+        </div>
+
+
+
+        <!-- KELAS -->
+
+        <div class="ict-form-group">
+
+          <label>
+            Kelas Murid
+          </label>
+
+          <input
+            type="text"
+            id="helpStudentClass"
+            placeholder="Contoh: 6 Al-Farabi"
+            required>
+
+        </div>
+
+
+
+        <!-- TELEFON -->
+
+        <div class="ict-form-group">
+
+          <label>
+            No. Telefon WhatsApp
+          </label>
+
+          <input
+            type="tel"
+            id="helpPhone"
+            inputmode="tel"
+            placeholder="Contoh: 0123456789"
+            required>
+
+          <small>
+            Pastikan nombor ini mempunyai WhatsApp.
+          </small>
+
+        </div>
+
+
+
+        <!-- MASALAH -->
+
+        <div class="ict-form-group">
+
+          <label>
+            Jenis Masalah
+          </label>
+
+          <select
+            id="helpProblem"
+            required>
+
+            <option value="">
+              -- Pilih jenis masalah --
+            </option>
+
+            <option value="Tukar kata laluan">
+              🔑 Tukar kata laluan
+            </option>
+
+            <option value="ID tidak wujud">
+              👤 ID tidak wujud
+            </option>
+
+            <option value="Masalah login DELIMa">
+              🔐 Masalah login DELIMa
+            </option>
+
+            <option value="Lain-lain">
+              ❓ Lain-lain
+            </option>
+
+          </select>
+
+        </div>
+
+
+
+        <!-- PENERANGAN -->
+
+        <div class="ict-form-group">
+
+          <label>
+            Penerangan Masalah
+          </label>
+
+          <textarea
+            id="helpProblemDescription"
+            rows="4"
+            maxlength="1000"
+            placeholder="Terangkan masalah yang dihadapi..."></textarea>
+
+        </div>
+
+
+
+        <!-- STATUS -->
+
+        <div
+          id="ictHelpFormMessage"
+          class="ict-help-form-message">
+        </div>
+
+
+
+        <!-- BUTTON -->
+
+        <button
+          type="submit"
+          class="ict-help-submit">
+
+          📤 Hantar Permohonan
+
+        </button>
+
+
+      </form>
+
+    </div>
+
+  `;
+
+
+  document.body.appendChild(
+    modal
+  );
+
+
+  // ==========================================
+  // CLOSE
+  // ==========================================
+
+  const closeBtn =
+    document.getElementById(
+      "closeICTHelpForm"
+    );
+
+
+  closeBtn.onclick =
+    function () {
+
+      modal.remove();
+
+    };
+
+
+  // Klik luar modal
+  modal.addEventListener(
+    "click",
+    function (event) {
+
+      if (
+        event.target === modal
+      ) {
+
+        modal.remove();
+
+      }
+
+    }
+  );
+
+
+  // ==========================================
+  // SUBMIT
+  // ==========================================
+
+  const form =
+    document.getElementById(
+      "ictHelpForm"
+    );
+
+
+  form.addEventListener(
+    "submit",
+    function (event) {
+
+      event.preventDefault();
+
+      submitICTHelpForm();
+
+    }
+  );
+
 
 }
