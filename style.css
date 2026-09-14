@@ -4415,3 +4415,11 @@ main {
 
   font-size: 16px;
 }
+
+/* ======================================================
+   HIDE LIVE CHAT FLOATING BUTTON - FRONTPAGE
+====================================================== */
+
+#chatButton.chat-float {
+  display: none !important;
+}
