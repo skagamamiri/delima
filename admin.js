@@ -152,53 +152,35 @@ function showDashboard() {
 
 function showAdminSection(section) {
 
-  const sections = [
-  "students",
-  "tutorial",
-  "help",
-  "ictRequests",
-  "chat"
-];
+  // ID tab tidak boleh dibina secara automatik kerana
+  // "ictRequests" menggunakan id tabICTRequests (ICT huruf besar).
+  const sectionConfig = {
+    students: { sectionId: "studentsSection", tabId: "tabStudents" },
+    tutorial: { sectionId: "tutorialSection", tabId: "tabTutorial" },
+    help: { sectionId: "helpSection", tabId: "tabHelp" },
+    ictRequests: { sectionId: "ictRequestsSection", tabId: "tabICTRequests" },
+    chat: { sectionId: "chatSection", tabId: "tabChat" }
+  };
 
+  Object.values(sectionConfig).forEach(function (cfg) {
+    const sectionEl = document.getElementById(cfg.sectionId);
+    const tabEl = document.getElementById(cfg.tabId);
 
-  sections.forEach(name => {
-
-    document
-      .getElementById(
-        name + "Section"
-      )
-      .classList
-      .add("hidden");
-
-
-    document
-      .getElementById(
-        "tab" +
-        name.charAt(0).toUpperCase() +
-        name.slice(1)
-      )
-      .classList
-      .remove("active");
-
+    if (sectionEl) sectionEl.classList.add("hidden");
+    if (tabEl) tabEl.classList.remove("active");
   });
 
+  const selected = sectionConfig[section];
+  if (!selected) {
+    console.error("Admin section tidak dikenali:", section);
+    return;
+  }
 
-  document
-    .getElementById(
-      section + "Section"
-    )
-    .classList
-    .remove("hidden");
+  const selectedSection = document.getElementById(selected.sectionId);
+  const selectedTab = document.getElementById(selected.tabId);
 
-
-  document
-    .getElementById(
-      "tab" +
-      section.charAt(0).toUpperCase() +
-      section.slice(1)
-    )
-    .classList
-    .add("active");
+  if (selectedSection) selectedSection.classList.remove("hidden");
+  if (selectedTab) selectedTab.classList.add("active");
 
 
   if (section === "students") {

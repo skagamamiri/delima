@@ -60,7 +60,7 @@
   <!-- CSS -->
   <link
     rel="stylesheet"
-    href="admin.css?v=27">
+    href="admin.css?v=29">
 
 </head>
 
@@ -244,6 +244,18 @@
         Bantuan ICT
 
       </button>
+
+      <button
+        id="tabICTRequests"
+        class="tab ict-request-tab"
+        onclick="showAdminSection('ictRequests')">
+
+        <span>🆘</span>
+        Permohonan ICT
+        <b id="ictRequestBadge" class="ict-request-badge hidden">0</b>
+
+      </button>
+
 
       <button
         id="tabChat"
@@ -588,6 +600,91 @@
 
 
     <!-- =================================
+         PERMOHONAN BANTUAN ICT
+    ================================= -->
+
+    <section id="ictRequestsSection" class="admin-section hidden">
+      <div class="panel ict-request-panel">
+        <div class="panel-header">
+          <div>
+            <h2>🆘 Permohonan Bantuan ICT</h2>
+            <p>Semak masalah murid, balas dan hantar jawapan terus ke WhatsApp.</p>
+          </div>
+          <button class="secondary-btn" type="button" onclick="loadAdminICTRequests(true)">↻ Refresh</button>
+        </div>
+
+        <div id="ictRequestMessage" class="form-message"></div>
+
+        <div class="ict-request-layout">
+          <aside class="ict-request-sidebar">
+            <div class="ict-request-sidebar-title">
+              <strong>Permohonan</strong>
+              <span id="ictRequestCount">0</span>
+            </div>
+            <div class="ict-request-filters">
+              <button type="button" class="ict-filter active" data-filter="ALL" onclick="filterICTRequests('ALL')">Semua</button>
+              <button type="button" class="ict-filter" data-filter="BARU" onclick="filterICTRequests('BARU')">Baru</button>
+              <button type="button" class="ict-filter" data-filter="DIBALAS" onclick="filterICTRequests('DIBALAS')">Dibalas</button>
+              <button type="button" class="ict-filter" data-filter="SELESAI" onclick="filterICTRequests('SELESAI')">Selesai</button>
+            </div>
+            <div id="ictRequestList" class="ict-request-list">
+              <div class="ict-empty">Tiada permohonan.</div>
+            </div>
+          </aside>
+
+          <section class="ict-request-detail">
+            <div id="ictRequestEmpty" class="ict-detail-empty">
+              <span>🆘</span>
+              <strong>Pilih permohonan</strong>
+              <p>Pilih permohonan di sebelah untuk melihat maklumat dan membalas murid.</p>
+            </div>
+
+            <div id="ictRequestActive" class="hidden">
+              <div class="ict-detail-header">
+                <div>
+                  <strong id="activeICTName">-</strong>
+                  <span id="activeICTMeta">-</span>
+                </div>
+                <span id="activeICTStatus" class="ict-status-badge">BARU</span>
+              </div>
+
+              <div class="ict-detail-content">
+                <div class="ict-info-grid">
+                  <div><small>No. Permohonan</small><strong id="activeICTId">-</strong></div>
+                  <div><small>WhatsApp</small><strong id="activeICTPhone">-</strong></div>
+                  <div><small>Tarikh</small><strong id="activeICTDate">-</strong></div>
+                  <div><small>Masalah</small><strong id="activeICTProblem">-</strong></div>
+                </div>
+
+                <div class="ict-description-box">
+                  <small>Penerangan masalah</small>
+                  <p id="activeICTDescription">-</p>
+                </div>
+
+                <div id="activeICTReplyBox" class="ict-reply-box">
+                  <label for="ictReplyInput">Balasan Admin ICT</label>
+                  <textarea id="ictReplyInput" rows="5" maxlength="4000" placeholder="Taip balasan kepada murid..."></textarea>
+                  <div class="ict-reply-actions">
+                    <button id="ictReplyBtn" type="button" class="primary-small" onclick="replySelectedICTRequest()">📲 Hantar ke WhatsApp</button>
+                    <button id="ictCloseBtn" type="button" class="secondary-btn" onclick="closeSelectedICTRequest()">✅ Tanda Selesai</button>
+                  </div>
+                  <div id="ictWhatsAppResult" class="ict-whatsapp-result"></div>
+                </div>
+
+                <div id="activeICTPreviousReply" class="ict-previous-reply hidden">
+                  <small>Balasan terakhir</small>
+                  <p id="activeICTPreviousReplyText">-</p>
+                  <span id="activeICTPreviousReplyMeta">-</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =================================
          LIVE CHAT
     ================================= -->
 
@@ -798,7 +895,7 @@
 </div>
 
 
-<script src="admin.js?v=27"></script>
+<script src="admin.js?v=29"></script>
 
  <script type="module">
 
