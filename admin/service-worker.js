@@ -205,7 +205,7 @@ self.addEventListener(
 // ======================================================
 
 const CACHE_NAME =
-  "skamdelima-admin-v2";
+  "skamdelima-admin-v3";
 
 
 const BASE =
@@ -226,7 +226,7 @@ self.addEventListener(
   function(event) {
 
     console.log(
-      "[ADMIN SW] Installing v2..."
+      "[ADMIN SW] Installing v3..."
     );
 
 
