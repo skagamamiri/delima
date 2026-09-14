@@ -3050,7 +3050,7 @@ function openICTHelpForm() {
 // SUBMIT BORANG BANTUAN ICT
 // ======================================================
 
-function submitICTHelpForm() {
+async function submitICTHelpForm() {
 
   const nama =
     document.getElementById("helpStudentName")?.value.trim() || "";
@@ -3070,50 +3070,102 @@ function submitICTHelpForm() {
   const message =
     document.getElementById("ictHelpFormMessage");
 
+  const submitButton =
+    document.querySelector(".ict-help-submit");
+
+  function showFormMessage(text, type) {
+    if (!message) return;
+    message.style.display = "block";
+    message.style.background =
+      type === "success" ? "#eaf8f0" : "#fff4e5";
+    message.style.color =
+      type === "success" ? "#176b42" : "#8a5200";
+    message.textContent = text;
+  }
+
   if (!nama || !kelas || !phone || !problem) {
-
-    if (message) {
-      message.style.display = "block";
-      message.style.background = "#fff4e5";
-      message.style.color = "#8a5200";
-      message.textContent =
-        "⚠️ Sila lengkapkan semua maklumat wajib.";
-    }
-
+    showFormMessage(
+      "⚠️ Sila lengkapkan semua maklumat wajib.",
+      "warning"
+    );
     return;
   }
 
-  // Semakan nombor telefon asas
   const digits = phone.replace(/\D/g, "");
 
-  if (digits.length < 9 || digits.length > 12) {
-
-    if (message) {
-      message.style.display = "block";
-      message.style.background = "#fff4e5";
-      message.style.color = "#8a5200";
-      message.textContent =
-        "⚠️ Sila masukkan nombor telefon yang sah.";
-    }
-
+  if (digits.length < 9 || digits.length > 15) {
+    showFormMessage(
+      "⚠️ Sila masukkan nombor telefon yang sah.",
+      "warning"
+    );
     return;
   }
 
-  console.log("📋 BORANG BANTUAN ICT:", {
-    nama,
-    kelas,
-    phone,
-    problem,
-    description
-  });
-
-  if (message) {
-    message.style.display = "block";
-    message.style.background = "#eaf8f0";
-    message.style.color = "#176b42";
-    message.textContent =
-      "✅ Maklumat borang berjaya diterima.\n\n" +
-      "Permohonan akan diproses oleh Admin ICT.";
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = "⏳ Menghantar...";
   }
 
+  try {
+
+    const params = new URLSearchParams();
+    params.set("action", "submitICTHelp");
+    params.set("nama", nama);
+    params.set("kelas", kelas);
+    params.set("phone", phone);
+    params.set("problem", problem);
+    params.set("description", description);
+    params.set("t", Date.now());
+
+    const response = await fetch(
+      API_URL + "?" + params.toString(),
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      showFormMessage(
+        "⚠️ " + (data.message || "Permohonan tidak berjaya dihantar."),
+        "warning"
+      );
+      return;
+    }
+
+    showFormMessage(
+      "✅ Permohonan berjaya dihantar.\n\n" +
+      "No. rujukan: " + data.requestId +
+      "\n\nAdmin ICT akan menghubungi anda melalui WhatsApp.",
+      "success"
+    );
+
+    const form = document.getElementById("ictHelpForm");
+    if (form) {
+      form.reset();
+    }
+
+  } catch (error) {
+
+    console.error("Submit ICT help:", error);
+
+    showFormMessage(
+      "❌ Tidak dapat menghantar permohonan. Sila cuba semula.",
+      "warning"
+    );
+
+  } finally {
+
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "📤 Hantar Permohonan";
+    }
+
+  }
 }
