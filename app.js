@@ -2849,6 +2849,7 @@ function openICTHelpForm() {
           <input
             type="text"
             id="helpStudentName"
+            name="nama"
             placeholder="Masukkan nama murid"
             autocomplete="name"
             required>
@@ -2868,6 +2869,7 @@ function openICTHelpForm() {
           <input
             type="text"
             id="helpStudentClass"
+            name="kelas"
             placeholder="Contoh: 6 Al-Farabi"
             required>
 
@@ -2886,6 +2888,7 @@ function openICTHelpForm() {
           <input
             type="email"
             id="helpParentEmail"
+            name="email"
             placeholder="Contoh: ibu@example.com"
             autocomplete="email"
             required>
@@ -2909,6 +2912,7 @@ function openICTHelpForm() {
           <input
             type="tel"
             id="helpPhone"
+            name="phone"
             inputmode="tel"
             placeholder="Contoh: 0123456789"
             >
@@ -2931,6 +2935,7 @@ function openICTHelpForm() {
 
           <select
             id="helpProblem"
+            name="problem"
             required>
 
             <option value="">
@@ -2969,6 +2974,7 @@ function openICTHelpForm() {
 
           <textarea
             id="helpProblemDescription"
+            name="description"
             rows="4"
             maxlength="1000"
             placeholder="Terangkan masalah yang dihadapi..."></textarea>
@@ -3075,74 +3081,55 @@ function openICTHelpForm() {
 
 async function submitICTHelpForm() {
 
-  // Ambil nilai terus daripada borang yang sedang dihantar.
-  // Ini mengelakkan konflik jika ada elemen/ID lama pada halaman.
   const form = document.getElementById("ictHelpForm");
-
   if (!form) {
     console.error("❌ ictHelpForm tidak ditemui.");
     return;
   }
 
-  const nama =
-    form.querySelector("#helpStudentName")?.value.trim() || "";
+  // Ambil nilai terus daripada elemen FORM yang sedang dihantar.
+  // WhatsApp sengaja TIDAK termasuk dalam senarai wajib.
+  const nama = String(form.elements.namedItem("nama")?.value || "").trim();
+  const kelas = String(form.elements.namedItem("kelas")?.value || "").trim();
+  const email = String(form.elements.namedItem("email")?.value || "").trim().toLowerCase();
+  const phone = String(form.elements.namedItem("phone")?.value || "").trim();
+  const problem = String(form.elements.namedItem("problem")?.value || "").trim();
+  const description = String(form.elements.namedItem("description")?.value || "").trim();
 
-  const kelas =
-    form.querySelector("#helpStudentClass")?.value.trim() || "";
-
-  const email =
-    form.querySelector("#helpParentEmail")?.value.trim() || "";
-
-  const phone =
-    form.querySelector("#helpPhone")?.value.trim() || "";
-
-  const problem =
-    form.querySelector("#helpProblem")?.value.trim() || "";
-
-  const description =
-    form.querySelector("#helpProblemDescription")?.value.trim() || "";
-
-  const message =
-    document.getElementById("ictHelpFormMessage");
-
-  const submitButton =
-    document.querySelector(".ict-help-submit");
+  const message = document.getElementById("ictHelpFormMessage");
+  const submitButton = form.querySelector(".ict-help-submit");
 
   function showFormMessage(text, type) {
     if (!message) return;
     message.style.display = "block";
-    message.style.background =
-      type === "success" ? "#eaf8f0" : "#fff4e5";
-    message.style.color =
-      type === "success" ? "#176b42" : "#8a5200";
+    message.style.background = type === "success" ? "#eaf8f0" : "#fff4e5";
+    message.style.color = type === "success" ? "#176b42" : "#8a5200";
     message.textContent = text;
   }
 
-  if (!nama || !kelas || !email || !problem) {
-    showFormMessage(
-      "⚠️ Sila lengkapkan semua maklumat wajib.",
-      "warning"
-    );
+  // Hanya 4 medan ini WAJIB.
+  const missing = [];
+  if (!nama) missing.push("Nama Murid");
+  if (!kelas) missing.push("Kelas Murid");
+  if (!email) missing.push("Email Ibu Bapa / Penjaga");
+  if (!problem) missing.push("Jenis Masalah");
+
+  if (missing.length) {
+    showFormMessage("⚠️ Sila lengkapkan: " + missing.join(", ") + ".", "warning");
     return;
   }
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   if (!emailPattern.test(email)) {
-    showFormMessage(
-      "⚠️ Sila masukkan alamat email ibu bapa yang sah.",
-      "warning"
-    );
+    showFormMessage("⚠️ Sila masukkan alamat email ibu bapa yang sah.", "warning");
     return;
   }
 
+  // WhatsApp = PILIHAN. Jika kosong, teruskan tanpa validation.
   if (phone) {
     const digits = phone.replace(/\D/g, "");
     if (digits.length < 9 || digits.length > 15) {
-      showFormMessage(
-        "⚠️ Sila masukkan nombor telefon yang sah atau kosongkan ruangan tersebut.",
-        "warning"
-      );
+      showFormMessage("⚠️ Sila masukkan nombor telefon yang sah atau kosongkan ruangan tersebut.", "warning");
       return;
     }
   }
@@ -3153,36 +3140,28 @@ async function submitICTHelpForm() {
   }
 
   try {
+    const params = new URLSearchParams({
+      action: "submitICTHelp",
+      nama: nama,
+      kelas: kelas,
+      email: email,
+      phone: phone,
+      problem: problem,
+      description: description,
+      t: String(Date.now())
+    });
 
-    const params = new URLSearchParams();
-    params.set("action", "submitICTHelp");
-    params.set("nama", nama);
-    params.set("kelas", kelas);
-    params.set("phone", phone);
-    params.set("email", email);
-    params.set("problem", problem);
-    params.set("description", description);
-    params.set("t", Date.now());
+    const response = await fetch(API_URL + "?" + params.toString(), {
+      method: "GET",
+      cache: "no-store"
+    });
 
-    const response = await fetch(
-      API_URL + "?" + params.toString(),
-      {
-        method: "GET",
-        cache: "no-store"
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("HTTP " + response.status);
-    }
+    if (!response.ok) throw new Error("HTTP " + response.status);
 
     const data = await response.json();
 
     if (!data.success) {
-      showFormMessage(
-        "⚠️ " + (data.message || "Permohonan tidak berjaya dihantar."),
-        "warning"
-      );
+      showFormMessage("⚠️ " + (data.message || "Permohonan tidak berjaya dihantar."), "warning");
       return;
     }
 
@@ -3193,26 +3172,15 @@ async function submitICTHelpForm() {
       "success"
     );
 
-    const form = document.getElementById("ictHelpForm");
-    if (form) {
-      form.reset();
-    }
+    form.reset();
 
   } catch (error) {
-
     console.error("Submit ICT help:", error);
-
-    showFormMessage(
-      "❌ Tidak dapat menghantar permohonan. Sila cuba semula.",
-      "warning"
-    );
-
+    showFormMessage("❌ Tidak dapat menghantar permohonan. Sila cuba semula.", "warning");
   } finally {
-
     if (submitButton) {
       submitButton.disabled = false;
       submitButton.textContent = "📤 Hantar Permohonan";
     }
-
   }
 }
