@@ -2822,225 +2822,561 @@ function notifyAdminsNewChat(
 // ICT REQUEST BACKEND ADD-ON
 // Portal Pengurusan DELIMa
 // SK Agama (MIS) Miri
-// Versi Email Ibu Bapa
+//
+// Tambahkan kod ini ke Google Apps Script backend sedia ada.
+// Jangan padam fungsi Live Chat / FCM yang telah ada.
 // ======================================================
 
 const ICT_REQUEST_SHEET = "ICT_REQUESTS";
-const ICT_HEADERS = [
-  "REQUEST_ID", "CREATED_AT", "UPDATED_AT", "NAMA", "KELAS", "WHATSAPP",
-  "MASALAH", "PENERANGAN", "STATUS", "ADMIN_REPLY", "REPLIED_AT",
-  "WHATSAPP_STATUS", "WHATSAPP_MESSAGE_ID", "WHATSAPP_ERROR", "ADMIN",
-  "EMAIL_IBU_BAPA", "EMAIL_STATUS", "EMAIL_ERROR"
-];
 
-function ensureICTRequestSheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(ICT_REQUEST_SHEET);
-  if (!sheet) {
-    sheet = ss.insertSheet(ICT_REQUEST_SHEET);
-    sheet.getRange(1, 1, 1, ICT_HEADERS.length).setValues([ICT_HEADERS]);
-    sheet.setFrozenRows(1);
-    return sheet;
-  }
-  const lastCol = Math.max(sheet.getLastColumn(), 1);
-  const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
-  ICT_HEADERS.forEach(function(header) {
-    if (headers.indexOf(header) === -1) {
-      sheet.getRange(1, sheet.getLastColumn() + 1).setValue(header);
-    }
-  });
-  return sheet;
-}
+// ======================================================
+// TAMBAHAN DALAM doGet(e)
+// ======================================================
+// Tambahkan case berikut dalam switch(action):
+//
+// case "submitICTHelp": return submitICTHelp(e);
+// case "getAdminICTRequests": return getAdminICTRequests(e);
+// case "replyICTRequest": return replyICTRequest(e);
+// case "closeICTRequest": return closeICTRequest(e);
+// case "testWhatsApp": return testWhatsApp(e);
+//
 
+// ======================================================
+// 1. TERIMA BORANG BANTUAN ICT
+// ======================================================
 function submitICTHelp(e) {
+
   const nama = String(e.parameter.nama || "").trim();
   const kelas = String(e.parameter.kelas || "").trim();
-  const phoneRaw = String(e.parameter.phone || "").trim();
   const email = String(e.parameter.email || "").trim().toLowerCase();
+  const phoneRaw = String(e.parameter.phone || "").trim(); // PILIHAN
   const problem = String(e.parameter.problem || "").trim();
   const description = String(e.parameter.description || "").trim();
 
+  // Wajib: nama, kelas, email, jenis masalah.
+  // No. WhatsApp adalah PILIHAN.
   if (!nama || !kelas || !email || !problem) {
-    return jsonResponse({ success: false, message: "Nama, kelas, email ibu bapa dan jenis masalah wajib diisi." });
+    return jsonResponse({
+      success: false,
+      message: "Maklumat wajib belum lengkap."
+    });
   }
-  if (nama.length > 120 || kelas.length > 80 || description.length > 1000 || email.length > 200) {
-    return jsonResponse({ success: false, message: "Maklumat terlalu panjang." });
-  }
+
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return jsonResponse({ success: false, message: "Alamat email ibu bapa tidak sah." });
+    return jsonResponse({
+      success: false,
+      message: "Alamat email ibu bapa/penjaga tidak sah."
+    });
+  }
+
+  if (nama.length > 120 || kelas.length > 80 || description.length > 1000 || email.length > 150) {
+    return jsonResponse({
+      success: false,
+      message: "Maklumat terlalu panjang."
+    });
   }
 
   let phone = "";
   if (phoneRaw) {
     phone = normalizeWhatsAppNumber(phoneRaw);
-    if (!phone) return jsonResponse({ success: false, message: "No. telefon tidak sah." });
+    if (!phone) {
+      return jsonResponse({
+        success: false,
+        message: "No. WhatsApp tidak sah. Kosongkan ruangan jika tidak diperlukan."
+      });
+    }
   }
 
-  const sheet = ensureICTRequestSheet_();
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(ICT_REQUEST_SHEET);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(ICT_REQUEST_SHEET);
+    sheet.getRange(1, 1, 1, 16).setValues([[
+      "REQUEST_ID", "CREATED_AT", "UPDATED_AT", "NAMA", "KELAS", "WHATSAPP",
+      "MASALAH", "PENERANGAN", "STATUS", "ADMIN_REPLY", "REPLIED_AT",
+      "WHATSAPP_STATUS", "WHATSAPP_MESSAGE_ID", "WHATSAPP_ERROR", "ADMIN", "EMAIL"
+    ]]);
+    sheet.setFrozenRows(1);
+  } else {
+    // Keserasian dengan ICT_REQUESTS lama (15 kolum).
+    const headers = ["EMAIL", "EMAIL_STATUS", "EMAIL_ERROR"];
+    headers.forEach(function (name, index) {
+      const col = 16 + index;
+      if (String(sheet.getRange(1, col).getValue() || "").trim() !== name) {
+        sheet.getRange(1, col).setValue(name);
+      }
+    });
+  }
+
   const requestId = "ICT-" + Utilities.getUuid().split("-")[0].toUpperCase();
   const now = new Date();
-  const row = new Array(ICT_HEADERS.length).fill("");
-  row[0] = requestId;
-  row[1] = now;
-  row[2] = now;
-  row[3] = nama;
-  row[4] = kelas;
-  row[5] = phone;
-  row[6] = problem;
-  row[7] = description;
-  row[8] = "BARU";
-  row[11] = "NOT_USED";
-  row[15] = email;
-  row[16] = "PENDING";
-  sheet.getRange(sheet.getLastRow() + 1, 1, 1, ICT_HEADERS.length).setValues([row]);
 
-  return jsonResponse({ success: true, requestId: requestId, message: "Permohonan Bantuan ICT berjaya dihantar." });
+  // Simpan EMAIL di kolum 16 supaya struktur kolum lama kekal serasi.
+  sheet.appendRow([
+    requestId, now, now, nama, kelas, phone, problem, description,
+    "BARU", "", "", "PENDING", "", "", "", email
+  ]);
+
+  return jsonResponse({
+    success: true,
+    requestId: requestId,
+    message: "Permohonan Bantuan ICT berjaya dihantar."
+  });
 }
 
+// ======================================================
+// 2. SENARAI PERMOHONAN UNTUK ADMIN
+// ======================================================
 function getAdminICTRequests(e) {
-  if (!verifyAdmin(e)) return sessionExpired();
-  const sheet = getSheet(ICT_REQUEST_SHEET);
-  if (!sheet || sheet.getLastRow() < 2) return jsonResponse({ success: true, requests: [] });
 
-  const lastCol = sheet.getLastColumn();
-  const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
-  const idx = {}; headers.forEach(function(h, i) { idx[h] = i; });
+  if (!verifyAdmin(e)) {
+    return sessionExpired();
+  }
+
+  const sheet = getSheet(ICT_REQUEST_SHEET);
+
+  if (!sheet || sheet.getLastRow() < 2) {
+    return jsonResponse({ success: true, requests: [] });
+  }
+
+  const lastCol = Math.max(16, sheet.getLastColumn());
   const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
 
-  const val = function(r, h) { return idx[h] === undefined ? "" : r[idx[h]]; };
-  const requests = data.map(function(r) {
+  const requests = data.map(function (r) {
     return {
-      requestId: String(val(r,"REQUEST_ID") || ""),
-      createdAt: val(r,"CREATED_AT") ? new Date(val(r,"CREATED_AT")).toISOString() : "",
-      updatedAt: val(r,"UPDATED_AT") ? new Date(val(r,"UPDATED_AT")).toISOString() : "",
-      nama: String(val(r,"NAMA") || ""),
-      kelas: String(val(r,"KELAS") || ""),
-      whatsapp: String(val(r,"WHATSAPP") || ""),
-      email: String(val(r,"EMAIL_IBU_BAPA") || ""),
-      problem: String(val(r,"MASALAH") || ""),
-      description: String(val(r,"PENERANGAN") || ""),
-      status: String(val(r,"STATUS") || "BARU"),
-      adminReply: String(val(r,"ADMIN_REPLY") || ""),
-      repliedAt: val(r,"REPLIED_AT") ? new Date(val(r,"REPLIED_AT")).toISOString() : "",
-      whatsappStatus: String(val(r,"WHATSAPP_STATUS") || "NOT_USED"),
-      whatsappMessageId: String(val(r,"WHATSAPP_MESSAGE_ID") || ""),
-      whatsappError: String(val(r,"WHATSAPP_ERROR") || ""),
-      admin: String(val(r,"ADMIN") || ""),
-      emailStatus: String(val(r,"EMAIL_STATUS") || "PENDING"),
-      emailError: String(val(r,"EMAIL_ERROR") || "")
+      requestId: String(r[0] || ""),
+      createdAt: r[1] ? new Date(r[1]).toISOString() : "",
+      updatedAt: r[2] ? new Date(r[2]).toISOString() : "",
+      nama: String(r[3] || ""),
+      kelas: String(r[4] || ""),
+      whatsapp: String(r[5] || ""),
+      problem: String(r[6] || ""),
+      description: String(r[7] || ""),
+      status: String(r[8] || "BARU"),
+      adminReply: String(r[9] || ""),
+      repliedAt: r[10] ? new Date(r[10]).toISOString() : "",
+      whatsappStatus: String(r[11] || "PENDING"),
+      whatsappMessageId: String(r[12] || ""),
+      whatsappError: String(r[13] || ""),
+      admin: String(r[14] || ""),
+      email: String(r[15] || ""),
+      emailStatus: String(r[16] || "PENDING"),
+      emailError: String(r[17] || "")
     };
   });
-  requests.sort(function(a,b){ return String(b.createdAt).localeCompare(String(a.createdAt)); });
+
+  requests.sort(function (a, b) {
+    return String(b.createdAt).localeCompare(String(a.createdAt));
+  });
+
   return jsonResponse({ success: true, requests: requests });
 }
 
+// ======================================================
+// 3. ADMIN BALAS + HANTAR KE WHATSAPP
+// ======================================================
 function replyICTRequest(e) {
+
   if (!verifyAdmin(e)) return sessionExpired();
+
   const requestId = String(e.parameter.requestId || "").trim();
   const reply = String(e.parameter.reply || "").trim();
   const admin = String(e.parameter.admin || "Admin ICT").trim();
-  if (!requestId || !reply) return jsonResponse({ success:false, message:"Request ID dan balasan diperlukan." });
-  if (reply.length > 4000) return jsonResponse({ success:false, message:"Balasan terlalu panjang." });
 
-  const sheet = ensureICTRequestSheet_();
-  const lastCol = sheet.getLastColumn();
-  const headers = sheet.getRange(1,1,1,lastCol).getValues()[0].map(String);
-  const idx = {}; headers.forEach(function(h,i){ idx[h]=i+1; });
-  const data = sheet.getRange(2,1,Math.max(sheet.getLastRow()-1,0),lastCol).getValues();
-  let rowNumber=-1, email="", studentName="";
-  for (let i=0;i<data.length;i++) {
-    if (String(data[i][idx.REQUEST_ID-1]) === requestId) {
-      rowNumber=i+2;
-      email=String(data[i][idx.EMAIL_IBU_BAPA-1] || "").trim();
-      studentName=String(data[i][idx.NAMA-1] || "Murid").trim();
+  if (!requestId || !reply) {
+    return jsonResponse({ success: false, message: "Request ID dan balasan diperlukan." });
+  }
+  if (reply.length > 4000) {
+    return jsonResponse({ success: false, message: "Balasan terlalu panjang." });
+  }
+
+  const sheet = getSheet(ICT_REQUEST_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) {
+    return jsonResponse({ success: false, message: "Permohonan ICT tidak dijumpai." });
+  }
+
+  // Pastikan kolum email/status wujud untuk rekod lama.
+  if (String(sheet.getRange(1, 16).getValue() || "").trim() !== "EMAIL") {
+    sheet.getRange(1, 16).setValue("EMAIL");
+  }
+  if (String(sheet.getRange(1, 17).getValue() || "").trim() !== "EMAIL_STATUS") {
+    sheet.getRange(1, 17).setValue("EMAIL_STATUS");
+  }
+  if (String(sheet.getRange(1, 18).getValue() || "").trim() !== "EMAIL_ERROR") {
+    sheet.getRange(1, 18).setValue("EMAIL_ERROR");
+  }
+
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, Math.max(18, sheet.getLastColumn())).getValues();
+  let rowNumber = -1;
+  let email = "";
+  let studentName = "";
+
+  for (let i = 0; i < data.length; i++) {
+    if (String(data[i][0]) === requestId) {
+      rowNumber = i + 2;
+      studentName = String(data[i][3] || "").trim();
+      email = String(data[i][15] || "").trim();
       break;
     }
   }
-  if (rowNumber<0) return jsonResponse({success:false,message:"Permohonan tidak dijumpai."});
+
+  if (rowNumber < 0) {
+    return jsonResponse({ success: false, message: "Permohonan tidak dijumpai." });
+  }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return jsonResponse({success:false,message:"Permohonan ini tiada alamat email ibu bapa yang sah."});
+    return jsonResponse({ success: false, message: "Permohonan ini tiada email ibu bapa/penjaga yang sah." });
   }
 
-  const now=new Date();
-  sheet.getRange(rowNumber, idx.UPDATED_AT).setValue(now);
-  sheet.getRange(rowNumber, idx.STATUS).setValue("DIBALAS");
-  sheet.getRange(rowNumber, idx.ADMIN_REPLY).setValue(reply);
-  sheet.getRange(rowNumber, idx.REPLIED_AT).setValue(now);
-  sheet.getRange(rowNumber, idx.ADMIN).setValue(admin || "Admin ICT");
-  sheet.getRange(rowNumber, idx.EMAIL_STATUS).setValue("SENDING");
-  sheet.getRange(rowNumber, idx.EMAIL_ERROR).clearContent();
+  const now = new Date();
+  sheet.getRange(rowNumber, 3).setValue(now);
+  sheet.getRange(rowNumber, 9).setValue("DIBALAS");
+  sheet.getRange(rowNumber, 10).setValue(reply);
+  sheet.getRange(rowNumber, 11).setValue(now);
+  sheet.getRange(rowNumber, 15).setValue(admin || "Admin ICT");
+  sheet.getRange(rowNumber, 17).setValue("SENDING");
+  sheet.getRange(rowNumber, 18).clearContent();
 
-  let emailResult;
-  try { emailResult = sendICTEmail_(email, studentName, reply, requestId); }
-  catch(error) { emailResult={success:false,error:String(error && error.message ? error.message : error)}; }
+  let result;
+  try {
+    result = sendICTEmail(email, studentName, requestId, reply);
+  } catch (error) {
+    result = { success: false, error: String(error && error.message ? error.message : error) };
+  }
 
-  if (emailResult.success) {
-    sheet.getRange(rowNumber, idx.EMAIL_STATUS).setValue("SENT");
-    sheet.getRange(rowNumber, idx.EMAIL_ERROR).clearContent();
+  if (result.success) {
+    sheet.getRange(rowNumber, 17).setValue("SENT");
+    sheet.getRange(rowNumber, 18).clearContent();
   } else {
-    sheet.getRange(rowNumber, idx.EMAIL_STATUS).setValue("FAILED");
-    sheet.getRange(rowNumber, idx.EMAIL_ERROR).setValue(String(emailResult.error || "Email gagal dihantar.").substring(0,500));
+    sheet.getRange(rowNumber, 17).setValue("FAILED");
+    sheet.getRange(rowNumber, 18).setValue(String(result.error || "Email gagal dihantar.").substring(0, 500));
   }
 
   return jsonResponse({
-    success:true,
-    emailSent:!!emailResult.success,
-    emailStatus:emailResult.success?"SENT":"FAILED",
-    emailError:emailResult.success?"":String(emailResult.error||"")
+    success: true,
+    emailSent: !!result.success,
+    emailStatus: result.success ? "SENT" : "FAILED",
+    emailError: result.success ? "" : String(result.error || "")
   });
 }
 
-function sendICTEmail_(email, studentName, reply, requestId) {
-  const subject = "Balasan Bantuan ICT - SK Agama (MIS) Miri - " + requestId;
-  const plain =
-    "Assalamualaikum " + (studentName || "") + ",\n\n" +
-    "Balasan Admin ICT SK Agama (MIS) Miri\n\n" +
-    reply + "\n\n" +
-    "No. rujukan: " + requestId + "\n\n" +
-    "Terima kasih.\nAdmin ICT\nSK Agama (MIS) Miri";
-  const html =
-    '<div style="font-family:Arial,sans-serif;line-height:1.6">' +
+// ======================================================
+// HANTAR BALASAN ICT MELALUI EMAIL
+// ======================================================
+function sendICTEmail(email, studentName, requestId, reply) {
+
+  const subject = "🆘 Balasan Bantuan ICT - " + requestId + " | SK Agama (MIS) Miri";
+  const safeName = escapeHtmlICT(studentName || "Ibu Bapa/Penjaga");
+  const safeReply = escapeHtmlICT(reply || "").replace(/\n/g, "<br>");
+
+  const htmlBody =
+    '<div style="font-family:Arial,sans-serif;line-height:1.6;color:#17324d">' +
     '<h2>🆘 Balasan Bantuan ICT</h2>' +
-    '<p>Assalamualaikum ' + escapeHtmlForEmail_(studentName || "") + ',</p>' +
-    '<p><strong>Admin ICT SK Agama (MIS) Miri</strong></p>' +
-    '<div style="padding:14px;border:1px solid #ddd;border-radius:8px;white-space:pre-wrap">' + escapeHtmlForEmail_(reply) + '</div>' +
-    '<p>No. rujukan: <strong>' + escapeHtmlForEmail_(requestId) + '</strong></p>' +
+    '<p>Assalamualaikum <strong>' + safeName + '</strong>,</p>' +
+    '<p>Admin ICT <strong>SK Agama (MIS) Miri</strong> telah memberikan balasan kepada permohonan bantuan ICT anda.</p>' +
+    '<div style="padding:16px;border:1px solid #dbe5ef;border-radius:10px;background:#f7fafc">' +
+    safeReply +
+    '</div>' +
+    '<p><strong>No. rujukan:</strong> ' + escapeHtmlICT(requestId) + '</p>' +
     '<p>Terima kasih.<br>Admin ICT<br>SK Agama (MIS) Miri</p>' +
     '</div>';
-  MailApp.sendEmail({to:email, subject:subject, body:plain, htmlBody:html, name:"Admin ICT SK Agama (MIS) Miri"});
-  return {success:true};
+
+  const body =
+    'Assalamualaikum ' + (studentName || 'Ibu Bapa/Penjaga') + ',\n\n' +
+    'Balasan Admin ICT SK Agama (MIS) Miri:\n\n' +
+    reply + '\n\n' +
+    'No. rujukan: ' + requestId + '\n\n' +
+    'Terima kasih.\nAdmin ICT\nSK Agama (MIS) Miri';
+
+  MailApp.sendEmail({
+    to: email,
+    subject: subject,
+    body: body,
+    htmlBody: htmlBody,
+    name: "Admin ICT SK Agama (MIS) Miri"
+  });
+
+  return { success: true };
 }
 
-function escapeHtmlForEmail_(text) {
-  return String(text || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+function escapeHtmlICT(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
+// ======================================================
+// 4. TUTUP PERMOHONAN
+// ======================================================
 function closeICTRequest(e) {
-  if (!verifyAdmin(e)) return sessionExpired();
-  const requestId=String(e.parameter.requestId||"").trim();
-  const sheet=ensureICTRequestSheet_();
-  const lastCol=sheet.getLastColumn();
-  const headers=sheet.getRange(1,1,1,lastCol).getValues()[0].map(String);
-  const idx={}; headers.forEach(function(h,i){idx[h]=i+1;});
-  if(!requestId||sheet.getLastRow()<2) return jsonResponse({success:false,message:"Permohonan tidak dijumpai."});
-  const ids=sheet.getRange(2,idx.REQUEST_ID,sheet.getLastRow()-1,1).getDisplayValues();
-  for(let i=0;i<ids.length;i++) if(String(ids[i][0])===requestId){
-    sheet.getRange(i+2,idx.UPDATED_AT).setValue(new Date());
-    sheet.getRange(i+2,idx.STATUS).setValue("SELESAI");
-    return jsonResponse({success:true});
+
+  if (!verifyAdmin(e)) {
+    return sessionExpired();
   }
-  return jsonResponse({success:false,message:"Permohonan tidak dijumpai."});
+
+  const requestId = String(e.parameter.requestId || "").trim();
+  const sheet = getSheet(ICT_REQUEST_SHEET);
+
+  if (!requestId || !sheet || sheet.getLastRow() < 2) {
+    return jsonResponse({
+      success: false,
+      message: "Permohonan tidak dijumpai."
+    });
+  }
+
+  const data = sheet
+    .getRange(2, 1, sheet.getLastRow() - 1, 1)
+    .getDisplayValues();
+
+  for (let i = 0; i < data.length; i++) {
+    if (String(data[i][0]) === requestId) {
+      sheet.getRange(i + 2, 3).setValue(new Date());
+      sheet.getRange(i + 2, 9).setValue("SELESAI");
+      return jsonResponse({
+        success: true
+      });
+    }
+  }
+
+  return jsonResponse({
+    success: false,
+    message: "Permohonan tidak dijumpai."
+  });
 }
 
-// WhatsApp functions retained only for backward compatibility.
-function sendICTWhatsApp() { return {success:false,error:"Penghantaran WhatsApp telah dinyahaktifkan. Sistem kini menggunakan email ibu bapa."}; }
-function buildICTWhatsAppText(studentName, reply) { return "Balasan Admin ICT untuk " + (studentName || "Murid") + ":\n\n" + String(reply || ""); }
-function normalizeWhatsAppNumber(phone) {
-  let digits=String(phone||"").replace(/\D/g,"");
-  if(!digits) return "";
-  if(digits.indexOf("00")===0) digits=digits.substring(2);
-  if(digits.charAt(0)==="0") digits="60"+digits.substring(1);
+// ======================================================
+// WHATSAPP CLOUD API
+// ======================================================
+// Script Properties yang diperlukan:
+// WA_ACCESS_TOKEN
+// WA_PHONE_NUMBER_ID
+// WA_GRAPH_VERSION       contoh: v23.0
+// WA_SEND_MODE           TEMPLATE atau TEXT
+// WA_TEMPLATE_NAME       jika TEMPLATE
+// WA_TEMPLATE_LANG       contoh: ms / en_US
+//
+// TEXT hanya sesuai apabila WhatsApp membenarkan free-form
+// message dalam conversation window. Untuk mesej pertama
+// kepada pengguna daripada borang web, gunakan TEMPLATE.
+// ======================================================
+function sendICTWhatsApp(phone, studentName, reply) {
+
+  const props = PropertiesService.getScriptProperties();
+
+  const token = String(props.getProperty("WA_ACCESS_TOKEN") || "").trim();
+  const phoneNumberId = String(props.getProperty("WA_PHONE_NUMBER_ID") || "").trim();
+  const version = String(props.getProperty("WA_GRAPH_VERSION") || "").trim();
+  const mode = String(props.getProperty("WA_SEND_MODE") || "TEMPLATE").trim().toUpperCase();
+
+  if (!token || !phoneNumberId || !version) {
+    return {
+      success: false,
+      error: "WhatsApp belum dikonfigurasi. Tetapkan WA_ACCESS_TOKEN, WA_PHONE_NUMBER_ID dan WA_GRAPH_VERSION."
+    };
+  }
+
+  const to = normalizeWhatsAppNumber(phone);
+
+  if (!to) {
+    return {
+      success: false,
+      error: "No. WhatsApp tidak sah."
+    };
+  }
+
+  const endpoint =
+    "https://graph.facebook.com/" +
+    encodeURIComponent(version) +
+    "/" +
+    encodeURIComponent(phoneNumberId) +
+    "/messages";
+
+  let payload;
+
+  if (mode === "TEXT") {
+
+    payload = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: to,
+      type: "text",
+      text: {
+        preview_url: false,
+        body: buildICTWhatsAppText(studentName, reply)
+      }
+    };
+
+  } else {
+
+    const templateName = String(props.getProperty("WA_TEMPLATE_NAME") || "").trim();
+    const templateLang = String(props.getProperty("WA_TEMPLATE_LANG") || "ms").trim();
+
+    if (!templateName) {
+      return {
+        success: false,
+        error: "WA_TEMPLATE_NAME belum ditetapkan."
+      };
+    }
+
+    payload = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: to,
+      type: "template",
+      template: {
+        name: templateName,
+        language: {
+          code: templateLang
+        },
+        components: [
+          {
+            type: "body",
+            parameters: [
+              {
+                type: "text",
+                text: String(studentName || "Murid")
+              },
+              {
+                type: "text",
+                text: String(reply)
+              }
+            ]
+          }
+        ]
+      }
+    };
+  }
+
+  const response = UrlFetchApp.fetch(endpoint, {
+    method: "post",
+    contentType: "application/json",
+    headers: {
+      Authorization: "Bearer " + token
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  const code = response.getResponseCode();
+  const body = response.getContentText();
+
+  let result = {};
+  try {
+    result = JSON.parse(body);
+  } catch (ignore) {}
+
+  if (code < 200 || code >= 300) {
+    return {
+      success: false,
+      error: "WhatsApp API HTTP " + code + ": " + body.substring(0, 500)
+    };
+  }
+
+  const messageId =
+    result &&
+    result.messages &&
+    result.messages[0] &&
+    result.messages[0].id
+      ? String(result.messages[0].id)
+      : "";
+
+  return {
+    success: true,
+    messageId: messageId
+  };
+}
+
+function buildICTWhatsAppText(studentName, reply) {
+  return [
+    "Assalamualaikum " + (studentName || "").trim() + ",",
+    "",
+    "🆘 Balasan Admin ICT SK Agama (MIS) Miri",
+    "",
+    String(reply || "").trim(),
+    "",
+    "Terima kasih."
+  ].join("\n");
+}
+
+function normalizeWhatsAppNumber(value) {
+
+  let digits = String(value || "").replace(/\D/g, "");
+
+  if (!digits) {
+    return "";
+  }
+
+  // Malaysia: 0123456789 -> 60123456789
+  if (digits.indexOf("60") === 0) {
+    return digits;
+  }
+
+  if (digits.indexOf("0") === 0) {
+    return "60" + digits.substring(1);
+  }
+
+  // Jika pengguna memasukkan nombor antarabangsa lain,
+  // kekalkan nombor tersebut.
   return digits;
 }
-function testWhatsAppSend() { return {success:false,error:"WhatsApp tidak digunakan dalam sistem versi email."}; }
-function testWhatsApp(e) { if(!verifyAdmin(e)) return sessionExpired(); return jsonResponse({success:false,message:"WhatsApp tidak digunakan. Gunakan fungsi email ICT."}); }
+
+// ======================================================
+// 5. UJIAN WHATSAPP DARI APPS SCRIPT
+// ======================================================
+// Jalankan secara manual selepas Script Properties siap:
+// testWhatsAppSend()
+// ======================================================
+function testWhatsAppSend() {
+
+  const props = PropertiesService.getScriptProperties();
+  const testPhone = String(props.getProperty("WA_TEST_PHONE") || "").trim();
+
+  if (!testPhone) {
+    throw new Error("Tetapkan WA_TEST_PHONE dahulu dalam Script Properties.");
+  }
+
+  const result = sendICTWhatsApp(
+    testPhone,
+    "Ujian Sistem",
+    "Ini ialah mesej ujian daripada Portal Pengurusan DELIMa SK Agama (MIS) Miri."
+  );
+
+  console.log(JSON.stringify(result));
+
+  if (!result.success) {
+    throw new Error(result.error || "WhatsApp test gagal.");
+  }
+
+  return result;
+}
+
+// ======================================================
+// OPTIONAL: ADMIN TEST ENDPOINT
+// ======================================================
+function testWhatsApp(e) {
+
+  if (!verifyAdmin(e)) {
+    return sessionExpired();
+  }
+
+  const phone = String(e.parameter.phone || "").trim();
+  const message = String(e.parameter.message || "").trim();
+
+  if (!phone || !message) {
+    return jsonResponse({
+      success: false,
+      message: "No. WhatsApp dan mesej diperlukan."
+    });
+  }
+
+  const result = sendICTWhatsApp(
+    phone,
+    "Ujian",
+    message
+  );
+
+  return jsonResponse(result);
+}
