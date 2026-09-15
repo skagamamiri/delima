@@ -3075,23 +3075,32 @@ function openICTHelpForm() {
 
 async function submitICTHelpForm() {
 
+  // Ambil nilai terus daripada borang yang sedang dihantar.
+  // Ini mengelakkan konflik jika ada elemen/ID lama pada halaman.
+  const form = document.getElementById("ictHelpForm");
+
+  if (!form) {
+    console.error("❌ ictHelpForm tidak ditemui.");
+    return;
+  }
+
   const nama =
-    document.getElementById("helpStudentName")?.value.trim() || "";
+    form.querySelector("#helpStudentName")?.value.trim() || "";
 
   const kelas =
-    document.getElementById("helpStudentClass")?.value.trim() || "";
-
-  const phone =
-    document.getElementById("helpPhone")?.value.trim() || "";
+    form.querySelector("#helpStudentClass")?.value.trim() || "";
 
   const email =
-    document.getElementById("helpParentEmail")?.value.trim() || "";
+    form.querySelector("#helpParentEmail")?.value.trim() || "";
+
+  const phone =
+    form.querySelector("#helpPhone")?.value.trim() || "";
 
   const problem =
-    document.getElementById("helpProblem")?.value || "";
+    form.querySelector("#helpProblem")?.value.trim() || "";
 
   const description =
-    document.getElementById("helpProblemDescription")?.value.trim() || "";
+    form.querySelector("#helpProblemDescription")?.value.trim() || "";
 
   const message =
     document.getElementById("ictHelpFormMessage");
