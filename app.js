@@ -1408,8 +1408,9 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
 
     navigator.serviceWorker
-      .register("./service-worker.js", {
-        scope: "./"
+      .register("./service-worker.js?v=40", {
+        scope: "./",
+        updateViaCache: "none"
       })
       .then(registration => {
         console.log(

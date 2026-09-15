@@ -58,7 +58,7 @@ messaging.onBackgroundMessage(
   }
 );
 
-const CACHE_NAME = "skamdelima-v38";
+const CACHE_NAME = "skamdelima-v40";
 
 const BASE = "/delima/";
 
@@ -121,6 +121,17 @@ self.addEventListener("fetch", event => {
 
   const url =
     new URL(event.request.url);
+
+
+  // app.js mesti sentiasa diambil daripada versi terkini.
+  // Ini mengelakkan browser menggunakan app.js lama daripada cache.
+  if (url.pathname.endsWith("/app.js")) {
+    event.respondWith(
+      fetch(event.request, { cache: "no-store" })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
 
 
   // Jangan cache Google Apps Script API

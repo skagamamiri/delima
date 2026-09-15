@@ -1017,7 +1017,7 @@
      JAVASCRIPT
 ===================================================== -->
 
-<script src="app.js?v=31"></script>
+<script src="app.js?v=40"></script>
 
 
 <script
@@ -1040,7 +1040,9 @@ if ("serviceWorker" in navigator) {
     () => {
 
       navigator.serviceWorker
-        .register("./service-worker.js")
+        .register("./service-worker.js?v=40", {
+          updateViaCache: "none"
+        })
         .then(registration => {
 
           console.log(
