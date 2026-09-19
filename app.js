@@ -3170,7 +3170,9 @@ async function submitICTHelpForm() {
     showFormMessage(
       "✅ Permohonan berjaya dihantar.\n\n" +
       "No. rujukan: " + data.requestId +
-      "\n\nAdmin ICT akan membalas melalui email ibu bapa/penjaga.",
+      "\n\nAdmin ICT akan membalas melalui email ibu bapa/penjaga.\n\n" +
+      "⏱️ Sila semak email dalam masa 1–3 hari bekerja.\n" +
+      "📩 Jika tiada email di Inbox, sila semak folder Spam/Junk.",
       "success"
     );
 
